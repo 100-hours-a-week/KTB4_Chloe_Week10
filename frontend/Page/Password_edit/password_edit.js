@@ -12,6 +12,13 @@ const helperTextConfirmPassword = document.getElementById('passwordConfirmHelper
 const editPasswordBtn = document.getElementById('submitBtn');
 const editSuccessToast = document.getElementById('toast');
 
+const LogoutBtn = document.getElementById('logoutBtn');
+
+LogoutBtn.addEventListener('click', function() {
+  localStorage.removeItem('accessToken');
+  window.location.href = '../Login/Login.html';
+});
+
 let isValidPassword = false;
 let isValidConfirmPassword = false;
 
@@ -84,7 +91,7 @@ function activeEditButton() {
 }
 
 async function passwordEdit(update_password){
-  return await request(`/users/${userId}/password`,'PATCH',update_password)
+  return await request(`/users/password`,'PATCH',update_password)
 }
 
 function showToast() {

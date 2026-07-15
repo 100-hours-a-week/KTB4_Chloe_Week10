@@ -13,7 +13,12 @@ const fileNameDisplay = document.getElementById('fileName');
 
 const editCompleteBtn = document.getElementById('submitBtn');
 
-const userId = sessionStorage.getItem("userId");
+const LogoutBtn = document.getElementById('logoutBtn');
+
+LogoutBtn.addEventListener('click', function() {
+  localStorage.removeItem('accessToken');
+  window.location.href = '../Login/Login.html';
+});
 
 profileMenuBtn.addEventListener('click', function() {
   dropdownMenu.classList.toggle('active');
@@ -59,7 +64,6 @@ const postId = params.get('postId');
 
 //게시글 수정 페이지 기본값 API 연동
 async function defaultEditPage(){
-  console.log("요청")
   return await request(`/posts/${postId}/edit`,'GET')
 }
 

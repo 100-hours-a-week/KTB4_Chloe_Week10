@@ -36,6 +36,13 @@ const commentContent = document.querySelector('.comment-body');
 
 const postReportBtn = document.getElementById('postReportBtn');
 
+const LogoutBtn = document.getElementById('logoutBtn');
+
+LogoutBtn.addEventListener('click', function() {
+  localStorage.removeItem('accessToken');
+  window.location.href = '../Login/Login.html';
+});
+
 let isEditing = false;
 let isLiked = false; 
 

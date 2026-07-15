@@ -58,7 +58,7 @@ profileInput.addEventListener('change', function () {
 
 LogoutBtn.addEventListener('click', function() {
   localStorage.removeItem('accessToken');
-  window.location.href = '../Login/login.html';
+  window.location.href = '../Login/Login.html';
 });
 
 
@@ -73,18 +73,7 @@ withdrawCancelBtn.addEventListener('click', function() {
 
 //회원 정보 조회 API
 async function getUser() {
-  const response = await fetch(`http://localhost:8080/users`, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error('회원 정보 조회 실패');
-  }
-
-  return response.json();
+  return await request('/users','GET');
 }
 //회원 정보 조회
 document.addEventListener('DOMContentLoaded', async function () {
@@ -106,19 +95,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 //회원 탈퇴 API 
 async function withdrawUser(){
-  const userId = sessionStorage.getItem('userId');
-  const response = await fetch(`http://localhost:8080/users`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-      }
-    });
-
-  if (!response.ok) {
-    throw new Error('회원 탈퇴 실패');
-  }
-
-  return response.json();
+  return await request('/users','DELETE');
 }
 //회원 탈퇴 
 withdrawConfirmBtn.addEventListener('click',async function(){

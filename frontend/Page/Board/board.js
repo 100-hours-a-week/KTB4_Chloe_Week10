@@ -16,6 +16,13 @@ const collapsedTopbar = document.getElementById('collapsedTopbar');
 const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
 const sidebarExpandBtn = document.getElementById('sidebarExpandBtn');
 
+const LogoutBtn = document.getElementById('logoutBtn');
+
+LogoutBtn.addEventListener('click', function() {
+  localStorage.removeItem('accessToken');
+  window.location.href = '../Login/Login.html';
+});
+
 profileMenuBtn.addEventListener('click', function() {
   dropdownMenu.classList.toggle('active');
 });

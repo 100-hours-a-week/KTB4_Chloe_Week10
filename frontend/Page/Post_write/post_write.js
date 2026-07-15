@@ -13,7 +13,12 @@ const fileNameDisplay = document.getElementById('fileName');
 
 const writeCompleteBtn = document.getElementById('submitBtn');
 
-const userId = sessionStorage.getItem("userId");
+const LogoutBtn = document.getElementById('logoutBtn');
+
+LogoutBtn.addEventListener('click', function() {
+  localStorage.removeItem('accessToken');
+  window.location.href = '../Login/Login.html';
+});
 
 profileMenuBtn.addEventListener('click', function() {
   dropdownMenu.classList.toggle('active');
