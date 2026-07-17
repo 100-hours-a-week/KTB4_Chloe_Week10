@@ -1,16 +1,19 @@
 spring:
   application:
     name: week4
+
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+
   jwt:
     secret: ${JWT_SECRET}
+
   logging:
     level:
       org.hibernate.orm.jdbc.bind: trace
 
-  file:
-    profile-upload-dir: /Users/seoyewon/dev-uploads/ProfileImage
-    post-upload-dir: /Users/seoyewon/dev-uploads/PostImage
+file:
+  profile-upload-dir: ${user.home}/dev-uploads/ProfileImage
+  post-upload-dir: ${user.home}/dev-uploads/PostImage
