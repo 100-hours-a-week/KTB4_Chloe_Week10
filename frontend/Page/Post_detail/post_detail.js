@@ -2,6 +2,8 @@ import request from "../../API/request.js";
 import { getPostImageUrl } from "../../API/imageRequest.js";
 import { getProfileImageUrl } from "../../API/imageRequest.js";
 
+import createElement from "./vdom/createElement.js";
+
 const profileMenuBtn = document.getElementById('profileMenuBtn');
 const dropdownMenu = document.getElementById('dropdownMenu');
 
@@ -180,6 +182,44 @@ postDeleteConfirmBtn.addEventListener('click', async function(){
 //댓글 생성 API 연동
 async function createComment(comment_data){
     return await request(`/posts/${postId}/comment`,'POST',comment_data);
+}
+
+// 댓글 목록 부분 
+// 댓글의 Vnode를 만드는 과정 - 직접 만든 createElement 이용해서
+function createCommentVNode(comment) {
+  // 기존에 프로필 관련 요소에서 프로필 이미지가 존재하면 img태그를 이용해서 commentAvatar.appendChild(authorAvatarImg); 으로 자식으로 넣고 있음
+  // 그래서 comment.profileImage 가 존재하면 자식 요소로 avatarChildren만들고, 값이 없으면 그냥 빈 배열
+  const avatarChildren = comment.profileImage
+    ? [createElement('img', {
+        className: 'comment-author-avatar-img',
+        src: getProfileImageUrl(comment.profileImage),
+        alt: ''
+      })]
+    : [];
+
+  return 
+  createElement('li', { className: 'comment-item', key: comment.commentId }, // ← key 필수!
+    createElement('div', { className: 'comment-header' },
+      //이 부분은 comment-author-wrap에 기존에 넣었던 것 처럼 프로필 이미지,작성자 이름,날짜를 넣고 있음
+      createElement('div', { className: 'comment-author-wrap' },
+        createElement('div', { className: 'author-avatar comment-avatar' }, ...avatarChildren),
+        createElement('span', { className: 'comment-author' }, comment.commenter),
+        createElement('span', { className: 'comment-date' }, formatDateTime(comment.commentDateWritten))
+      ),
+      //이 부분도 comment-actions 밑에 수정과삭제 버튼 요소를 자식으로 넣고 있음 
+      createElement('div', { className: 'comment-actions' },
+        createElement('button', {
+          className: 'btn-action btn-edit-comment',
+          'data-comment-id': comment.commentId
+        }, '수정'),
+        createElement('button', {
+          className: 'btn-action btn-delete-comment',
+          'data-comment-id': comment.commentId
+        }, '삭제')
+      )
+    ),
+    createElement('p', { className: 'comment-body' }, comment.commentContent)
+  );
 }
 
 
