@@ -83,6 +83,7 @@ public class PostService {
         Pageable pageable = PageRequest.of(0, limitCount);
         List<Post> postList = postRepository.findLatestPosts(cursorId,pageable);
 
+
         List<PostResponseDto> postsListDto = new ArrayList<>();
         for(Post postdto : postList){
             postsListDto.add(
@@ -113,6 +114,12 @@ public class PostService {
 
         Boolean is_liked =likeRespoitory.existsByPostAndUser(post,user);
 
+        Boolean isOwner = false;
+
+        if(user.getUserId().equals(post.getWriter().getUserId()) ){
+            isOwner = true;
+        }
+
         post.viewCountIncrement();
 
         PostResponseDto postResponseDto = new PostResponseDto(
@@ -125,7 +132,8 @@ public class PostService {
                 post.getWriter().getProfileImage(),
                 post.getLikeCount(),
                 post.getCommentCount(),
-                post.getViewCount()
+                post.getViewCount(),
+                isOwner
 
         );
 
