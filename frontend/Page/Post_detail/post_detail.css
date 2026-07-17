@@ -355,6 +355,13 @@ a {
   background-color: var(--border);
   flex-shrink: 0;
 }
+.author-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
 
 .author-name {
   font-weight: 700;
@@ -377,10 +384,11 @@ a {
 
 .post-image-placeholder {
   width: 100%;
-  height: 140px;
-  background-color: var(--border);
+  height: auto;
+  max-height: 400px;
   border-radius: 10px;
-  object-fit: cover;
+  object-fit: contain;
+  background-color: var(--border);
   display: block;
 }
 
@@ -584,6 +592,13 @@ a {
   font-weight: 700;
   font-size: 13px;
   color: var(--text);
+}
+.comment-author-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
 }
 
 .comment-date {

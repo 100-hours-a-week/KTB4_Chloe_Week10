@@ -1,4 +1,5 @@
 import request from "../../API/request.js";
+import { getProfileImageUrl } from "../../API/imageRequest.js";
 
 const profileMenuBtn = document.getElementById('profileMenuBtn');
 const dropdownMenu = document.getElementById('dropdownMenu');
@@ -83,12 +84,12 @@ document.addEventListener('DOMContentLoaded', async function () {
   nicknameInput.value = result.data.nickname;
 
   if (result.data.profileImage) {
-    //profilePreview.src = `http://localhost:8080${result.data.profileImage}`;
-    //headerProfileIcon.src = `http://localhost:8080${result.data.profileImage}`;
+    profilePreview.src = getProfileImageUrl(result.data.profileImage);
+    headerProfileIcon.src = getProfileImageUrl(result.data.profileImage);
     profilePreview.style.display = 'block';
   } else {
     profilePreview.src = '';
-    //headerProfileIcon.src = '';
+    headerProfileIcon.src = '';
     profilePreview.style.display = 'none';
   }
 });
@@ -165,14 +166,14 @@ submitBtn.addEventListener('click', async function() {
   nicknameInput.value = response.data.nickname;
 
   if (response.data.profileImage) {
-    //profilePreview.src = `http://localhost:8080${response.data.profileImage}`;
+    profilePreview.src = getProfileImageUrl(response.data.profilImage);
     profilePreview.style.display = 'block';
 
-    //headerProfileIcon.src = `http://localhost:8080${response.data.profileImage}`;
+    headerProfileIcon.src = getProfileImageUrl(response.data.profilImage);
   }
   else {
     profilePreview.src = '';
-    //headerProfileIcon.src = '';
+    headerProfileIcon.src = '';
     profilePreview.style.display = 'none';
   }
 

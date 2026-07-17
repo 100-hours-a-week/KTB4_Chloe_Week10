@@ -1,4 +1,6 @@
 import request from "../../API/request.js";
+import { getPostImageUrl } from "../../API/imageRequest.js";
+import { getProfileImageUrl } from "../../API/imageRequest.js";
 
 const profileMenuBtn = document.getElementById('profileMenuBtn');
 const dropdownMenu = document.getElementById('dropdownMenu');
@@ -37,6 +39,9 @@ const commentContent = document.querySelector('.comment-body');
 const postReportBtn = document.getElementById('postReportBtn');
 
 const LogoutBtn = document.getElementById('logoutBtn');
+
+const commentCountHeading = document.getElementById('commentCountHeading');
+
 
 LogoutBtn.addEventListener('click', function() {
   localStorage.removeItem('accessToken');
@@ -115,12 +120,19 @@ document.addEventListener('DOMContentLoaded', async function () {
   const result = await getDetailPost();
 
   postTitle.textContent = result.data.post.title;
+  if (result.data.post.profileImage) {
+      const authorAvatarImg = document.createElement('img');
+      authorAvatarImg.className = 'author-avatar-img';
+      authorAvatarImg.src = getProfileImageUrl(result.data.post.profileImage);
+      authorAvatarImg.alt = '';
+      authorAvatar.appendChild(authorAvatarImg);
+  }
   authorName.textContent = result.data.post.writer;
   postDate.textContent = formatDateTime(result.data.post.datewritten);
   postBody.textContent = result.data.post.content;
 
   if (result.data.post.post_image) {
-    //postImagePlaceholder.src = `http://localhost:8080${result.data.post.post_image}`;
+    postImagePlaceholder.src = getPostImageUrl(result.data.post.post_image);
     postImagePlaceholder.style.display = 'block';
   } else {
     postImagePlaceholder.style.display = 'none';
@@ -178,6 +190,13 @@ function createCommentElement(comment) {
 
   const commentAvatar = document.createElement('div');
   commentAvatar.className = 'author-avatar comment-avatar';
+  if (comment.profileImage) {
+      const authorAvatarImg = document.createElement('img');
+      authorAvatarImg.className = 'comment-author-avatar-img';
+      authorAvatarImg.src = getProfileImageUrl(comment.profileImage);
+      authorAvatarImg.alt = '';
+      commentAvatar.appendChild(authorAvatarImg);
+  }
 
   const commentAuthor = document.createElement('span');
   commentAuthor.className = 'comment-author';
@@ -271,15 +290,15 @@ commentList.addEventListener('click', async function(e) {
   }
 });
     commentDeleteConfirmBtn.addEventListener('click', async function () {
-      await deleteComment(currentDeleteCommentId);
+      const result = await deleteComment(currentDeleteCommentId);
       
       if (currentDeleteItem) {
         currentDeleteItem.remove();
       }
       commentDeleteModal.classList.remove('active');
       document.body.classList.remove('modal-open');
+      commentCountHeading.textContent = result.data.commentCount;
 });
-
 
 
 commentSubmitBtn.addEventListener('click', async function() {
@@ -301,6 +320,7 @@ commentSubmitBtn.addEventListener('click', async function() {
     } else {
       const result = await createComment(comment_data);
       commentList.prepend(createCommentElement(result.data));
+      commentCountHeading.textContent = result.data.commentCount;
     }
 
     commentInput.value = '';

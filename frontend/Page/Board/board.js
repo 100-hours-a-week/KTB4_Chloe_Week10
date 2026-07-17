@@ -1,4 +1,6 @@
 import request from "../../API/request.js";
+import { getProfileImageUrl } from "../../API/imageRequest.js";
+import { getPostImageUrl } from "../../API/imageRequest.js";
 
 const profileMenuBtn = document.getElementById('profileMenuBtn');
 const dropdownMenu = document.getElementById('dropdownMenu');
@@ -137,13 +139,12 @@ function renderPostList(posts) {
     const postCardInner = document.createElement('div');
     postCardInner.className = 'post-card-inner';
 
-    // 썸네일: 이미지가 있는 게시글만 생성
     if (post.post_image) {
-      const postThumb = document.createElement('img');
-      postThumb.className = 'post-thumb';
-      postThumb.src = `https://picsum.photos/200`;
-      postThumb.alt = '';
-      postCardInner.appendChild(postThumb);
+      const postImg = document.createElement('img');
+      postImg.className = 'post-img';
+      postImg.src = getPostImageUrl(post.post_image);
+      postImg.alt = '';
+      postCardInner.appendChild(postImg);
     }
 
     // 본문 영역 (제목 + 통계 + 하단 작성자/날짜)
@@ -167,6 +168,14 @@ function renderPostList(posts) {
 
     const authorAvatar = document.createElement('div');
     authorAvatar.className = 'author-avatar';
+
+    if (post.profileImage) {
+      const authorAvatarImg = document.createElement('img');
+      authorAvatarImg.className = 'author-avatar-img';
+      authorAvatarImg.src = getProfileImageUrl(post.profileImage);
+      authorAvatarImg.alt = '';
+      authorAvatar.appendChild(authorAvatarImg);
+    }
 
     const authorName = document.createElement('span');
     authorName.className = 'author-name';

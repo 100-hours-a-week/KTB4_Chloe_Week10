@@ -345,7 +345,7 @@ a {
   gap: 14px;
 }
 
-.post-thumb {
+.post-img {
   width: 72px;
   height: 72px;
   border-radius: 10px;
@@ -420,6 +420,13 @@ a {
   border-radius: 50%;
   background-color: var(--border);
   flex-shrink: 0;
+}
+.author-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
 }
 
 .author-name {

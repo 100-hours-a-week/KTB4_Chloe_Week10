@@ -67,11 +67,16 @@ async function defaultEditPage(){
   return await request(`/posts/${postId}/edit`,'GET')
 }
 
+//지금 이미지 
+let existingPostImage = null;
+
 document.addEventListener('DOMContentLoaded', async function(){
     const response = await defaultEditPage();
     console.log(response)
     titleInput.value = response.data.title;
     postContentInput.textContent = response.data.content;
+    
+    existingPostImage = response.data.postImage;
     fileNameDisplay.textContent = response.data.postImage;
 
 })
