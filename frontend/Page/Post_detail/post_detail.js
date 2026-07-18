@@ -3,6 +3,8 @@ import { getPostImageUrl } from "../../API/imageRequest.js";
 import { getProfileImageUrl } from "../../API/imageRequest.js";
 
 import createElement from "./vdom/createElement.js";
+import { patchChildren } from "./vdom/patch.js";
+import { diffChildren } from "./vdom/diff.js";
 
 const profileMenuBtn = document.getElementById('profileMenuBtn');
 const dropdownMenu = document.getElementById('dropdownMenu');
@@ -117,6 +119,12 @@ async function getDetailPost(){
   return await request(`/posts/${postId}`,'GET')
 }
 
+// state — 댓글 배열을 명시적으로 관리
+// 기존에는 그냥 게시글 상세조회할 때 받아온 데이터를 한번 댓글 목록 그리는데 쓰고 말았는데,
+// VDOM 방식에서는 비교를 위해서 이전 값을 알아야 하기 때문에 
+// comments는 게시글 상세조회할 때 댓글 받아온 배열 넣어주거나, 댓글 추가할 때 배열의 앞단에 넣거나, 댓글 삭제 할 때 배열에서 삭제해서 업데이트 되는 형식!
+let comments = [];
+
 document.addEventListener('DOMContentLoaded', async function () {
 
   const result = await getDetailPost();
@@ -155,9 +163,13 @@ document.addEventListener('DOMContentLoaded', async function () {
  
   document.getElementById('commentCountHeading').textContent = result.data.post.comment_count;
 
-  result.data.comments.forEach((comment) => {
-    commentList.appendChild(createCommentElement(comment));
-  });
+  // 이전 방식
+  // result.data.comments.forEach((comment) => {
+  //   commentList.appendChild(createCommentElement(comment));
+  // });
+
+  comments = result.data.comments;  // 배열 자체를 state에 담기
+  renderComments();                  // 최초 호출 → if 블록 (!commentList._prevVnodeList) - 이 분기로 들어감 
 
 });
 //게시글 수정 페이지 이동
@@ -220,6 +232,33 @@ function createCommentVNode(comment) {
     ),
     createElement('p', { className: 'comment-body' }, comment.commentContent)
   );
+}
+
+
+
+function renderComments() {
+  // 현재 comments 배열을 기준으로 Vnode로 바꿔서 생성
+  const newVnodeList = comments.map(comment => createCommentVNode(comment));
+
+  //이전 노드가 없으니깐 최초 렌더링
+  if (!commentList._prevVnodeList) {
+    // 최초 렌더링 시에  아까 만든 newVnodeList 배열을 실제 DOM으로 바꿔서 commentList에 자식으로 붙여줌
+    newVnodeList.forEach(vnode => {
+      commentList.appendChild(render(vnode));
+    });
+  // 최초 렌더링이 아니라 리렌더링 일때 
+  } else {
+    // diffChildren으로 이전 목록과 새 목록 비교
+    // 여기서 diffChildren을 쓰는 이유는 지금 부모 노드인 commentList 부터 Vnode로 바꾸는 게 아니고, 그 자식들을 Vnode로 바꾸는 거기 때문에 
+    // 결론적으로 배열을 비교하는거기 때문에 바로 diffChildren으로 commentList의 이전의 자식 Vnode 배열과 새로 만들어진 Vnode 배열 비교해서 patch 객체 생성
+    const childrenPatches = diffChildren(commentList._prevVnodeList, newVnodeList);
+    // 여기서 patchChildren으로 DOM인 commentList에 적용하는 것도 위의 이유와 같음 
+    patchChildren(commentList, childrenPatches);
+  }
+
+  // 다음 비교를 위해 현재 newVnodeList를 이전 Vnode로 저장 
+  // 리렌더링이 일어나면 preVnode가 바뀌게 됨.
+  commentList._prevVnodeList = newVnodeList;
 }
 
 
@@ -337,9 +376,16 @@ commentList.addEventListener('click', async function(e) {
     commentDeleteConfirmBtn.addEventListener('click', async function () {
       const result = await deleteComment(currentDeleteCommentId);
       
-      if (currentDeleteItem) {
-        currentDeleteItem.remove();
-      }
+      // 이전 방식
+      // currentDeleteItem.remove();
+
+      // 배열에서 해당 댓글만 제외하고 새 배열 만들기
+      // filter는 배열을 순회하면서, 조건이 true인 것들만 골라서 새 배열을 만드는 메서드
+      // currentDeleteCommentId = deleteBtn.dataset.commentId 이렇게 dataset으로 불러오면 문자열이 불러와지기 때문에 
+      // 타입을 맞추기 위해서 Number을 사용
+      comments = comments.filter(comment => comment.commentId !== Number(currentDeleteCommentId));
+      renderComments();
+
       commentDeleteModal.classList.remove('active');
       document.body.classList.remove('modal-open');
       commentCountHeading.textContent = result.data.commentCount;
@@ -350,7 +396,6 @@ commentSubmitBtn.addEventListener('click', async function() {
   const comment_data = {
     commentContent: commentInput.value
   }
-
 
   try {
     //댓글 수정으로 버튼이 변한 경우
@@ -364,7 +409,12 @@ commentSubmitBtn.addEventListener('click', async function() {
       commentSubmitBtn.textContent = '댓글 등록';
     } else {
       const result = await createComment(comment_data);
-      commentList.prepend(createCommentElement(result.data));
+      //이전 방식
+      //commentList.prepend(createCommentElement(result.data));
+
+      comments = [result.data, ...comments];  // 새 댓글을 맨 앞에 추가 (prepend 대응)
+      renderComments();                        // 두 번째 이후 호출 → else 블록 분기로 들어감 (diff,patch)
+
       commentCountHeading.textContent = result.data.commentCount;
     }
 
