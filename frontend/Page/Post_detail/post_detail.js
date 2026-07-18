@@ -5,6 +5,7 @@ import { getProfileImageUrl } from "../../API/imageRequest.js";
 import createElement from "./vdom/createElement.js";
 import { patchChildren } from "./vdom/patch.js";
 import { diffChildren } from "./vdom/diff.js";
+import render from "./vdom/render.js"
 
 const profileMenuBtn = document.getElementById('profileMenuBtn');
 const dropdownMenu = document.getElementById('dropdownMenu');
@@ -209,8 +210,7 @@ function createCommentVNode(comment) {
       })]
     : [];
 
-  return 
-  createElement('li', { className: 'comment-item', key: comment.commentId }, // ← key 필수!
+  return createElement('li', { className: 'comment-item', key: comment.commentId }, // ← key 필수!
     createElement('div', { className: 'comment-header' },
       //이 부분은 comment-author-wrap에 기존에 넣었던 것 처럼 프로필 이미지,작성자 이름,날짜를 넣고 있음
       createElement('div', { className: 'comment-author-wrap' },
@@ -402,7 +402,17 @@ commentSubmitBtn.addEventListener('click', async function() {
     if (isEditing) {
 		   //currentEditCommentId는 해당 댓글의 수정 버튼이 눌리면 값이 들어가짐.
       const result = await editComment(currentEditCommentId, comment_data);
+      // 이전 방식
       currentEditCommentBody.textContent = result.data.commentContent; 
+
+      // DOM 직접 수정 대신, 배열 갱신 + renderComments()
+      // currentEditCommentId 와 돌고 있는 comment의 id가 같으면, 그 댓글 본문을 서버에서 받아온 데이터로 변경
+      // comments = comments.map(comment =>
+      //   comment.commentId === Number(currentEditCommentId)
+      //     ? { ...comment, commentContent: result.data.comment_content }
+      //     : comment //현재 수정 중인 댓글 ID가 아니면 그냥 comment를 새로운 배열 
+      // );
+      // renderComments();
 
       isEditing = false;
       currentEditCommentId = null;
@@ -413,6 +423,7 @@ commentSubmitBtn.addEventListener('click', async function() {
       //commentList.prepend(createCommentElement(result.data));
 
       comments = [result.data, ...comments];  // 새 댓글을 맨 앞에 추가 (prepend 대응)
+      console.log('comments 배열:', comments);
       renderComments();                        // 두 번째 이후 호출 → else 블록 분기로 들어감 (diff,patch)
 
       commentCountHeading.textContent = result.data.commentCount;
