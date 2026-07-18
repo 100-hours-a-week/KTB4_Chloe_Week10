@@ -192,55 +192,15 @@ postDeleteConfirmBtn.addEventListener('click', async function(){
   }
 });
 
+let currentEditCommentId = null;
+let currentEditCommentBody = null;
+
+let currentDeleteCommentId = null;
+let currentDeleteItem = null;
+
 //댓글 생성 API 연동
 async function createComment(comment_data){
     return await request(`/posts/${postId}/comment`,'POST',comment_data);
-}
-
-function mountComments() {
-  // 1. 현재 comments 배열로 최상위 ul VNode 생성
-  const ulVnode = createElement('ul', { className: 'comment-list', id: 'commentList' },
-    ...comments.map(comment => createCommentVNode(comment))
-  );
-
-  // 2. VNode를 진짜 DOM으로 변환
-  const newUlDom = render(ulVnode);
-
-  // 3. 기존 <ul id="commentList">를 새로 만든 DOM으로 통째로 교체 (딱 1번만 일어남)
-  commentList.replaceWith(newUlDom);
-
-  // 4. 이후 diff/patch를 위한 기준값 저장
-  newUlDom._prevVnode = ulVnode;
-  newUlDom._domNode = newUlDom;
-
-  // 5. commentListEl 참조를 새 DOM으로 갱신 (이후 모든 코드가 이걸 기준으로 동작해야 하니까)
-  commentList = newUlDom;
-
-  //이벤트 등록
-  commentList.addEventListener('click', async function (e) {
-    const editBtn = e.target.closest('.btn-edit-comment');
-    const deleteBtn = e.target.closest('.btn-delete-comment');
-
-    if (editBtn) {
-      const commentBody = editBtn.closest('.comment-item').querySelector('.comment-body');
-
-      commentInput.value = commentBody.textContent;
-      commentSubmitBtn.textContent = '댓글 수정';
-      commentSubmitBtn.classList.add('active');
-      commentSubmitBtn.disabled = false;
-      isEditing = true;
-
-      currentEditCommentId = editBtn.dataset.commentId;
-      currentEditCommentBody = editBtn.closest('.comment-item').querySelector('.comment-body');
-    }
-
-    if (deleteBtn) {
-      currentDeleteCommentId = deleteBtn.dataset.commentId;
-      commentDeleteModal.classList.add('active');
-      document.body.classList.add('modal-open');
-      currentDeleteItem = deleteBtn.closest('.comment-item');
-    }
-  });
 }
 
 // 댓글 목록 부분 
@@ -280,24 +240,66 @@ function createCommentVNode(comment) {
   );
 }
 
+function mountComments() {
+  // 1. 현재 comments 배열로 최상위 ul Vnode 생성
+  const ulVnode = createElement('ul', { className: 'comment-list', id: 'commentList' },
+    ...comments.map(comment => createCommentVNode(comment))
+  );
+
+  // 2. Vnode를 진짜 DOM으로 변환
+  const newUlDom = render(ulVnode);
+
+  // 3. 기존 <ul id="commentList">를 새로 만든 DOM으로 통째로 교체 (딱 1번만 일어남)
+  commentList.replaceWith(newUlDom);
+
+  // 4. 이후 diff/patch를 위한 기준값 저장
+  newUlDom._prevVnode = ulVnode;
+  newUlDom._domNode = newUlDom;
+
+  // 5. commentList 참조를 새 DOM으로 갱신 (이후 모든 코드가 이걸 기준으로 동작해야 하니까)
+  commentList = newUlDom;
+
+  //이벤트 등록
+  commentList.addEventListener('click', async function (e) {
+    const editBtn = e.target.closest('.btn-edit-comment');
+    const deleteBtn = e.target.closest('.btn-delete-comment');
+
+    if (editBtn) {
+      const commentBody = editBtn.closest('.comment-item').querySelector('.comment-body');
+
+      commentInput.value = commentBody.textContent;
+      commentSubmitBtn.textContent = '댓글 수정';
+      commentSubmitBtn.classList.add('active');
+      commentSubmitBtn.disabled = false;
+      isEditing = true;
+
+      currentEditCommentId = editBtn.dataset.commentId;
+      currentEditCommentBody = editBtn.closest('.comment-item').querySelector('.comment-body');
+    }
+
+    if (deleteBtn) {
+      currentDeleteCommentId = deleteBtn.dataset.commentId;
+      commentDeleteModal.classList.add('active');
+      document.body.classList.add('modal-open');
+      currentDeleteItem = deleteBtn.closest('.comment-item');
+    }
+  });
+}
 
 
-function renderComments() {
-  // 1. 현재 comments 배열로 새 ul VNode 생성 (mountComments와 똑같은 방식)
+function rerenderComments() {
+  // 현재 comments 배열로 새 ul VNode 생성 (mountComments와 똑같은 방식)
   const newUlVnode = createElement('ul', { className: 'comment-list', id: 'commentList' },
     ...comments.map(comment => createCommentVNode(comment))
   );
-  console.log('이전 VNode:', commentList._prevVnode);
-  console.log('새 VNode:', newUlVnode);
 
-  // 2. ul 전체(하나의 VNode)를 diff — 최상위부터 시작
+  // ul 전체(하나의 VNode)를 diff — 최상위부터 시작
   const patches = diff(commentList._prevVnode, newUlVnode);
-  console.log('patch 결과:', patches);
 
-  // 3. ul 전체를 대상으로 patch 적용 — patch() 내부에서 필요하면 알아서 patchChildren 호출함
+  // ul 전체를 대상으로 patch 적용 — patch() 내부에서 필요하면 알아서 patchChildren 호출함
   patch(commentList._domNode, patches);
 
-  // 4. 다음 비교를 위해 기준값 갱신
+  // 다음 비교를 위해 기준값 갱신
   commentList._prevVnode = newUlVnode;
 }
 
@@ -319,39 +321,8 @@ commentDeleteCancelBtn.addEventListener('click', function() {
 }); 
 
 
-let currentEditCommentId = null;
-let currentEditCommentBody = null;
 
-let currentDeleteCommentId = null;
-let currentDeleteItem = null;
 
-//각 댓글 당 수정&삭제 버튼 등록..
-// commentList.addEventListener('click', async function(e) {
-
-//   const editBtn = e.target.closest('.btn-edit-comment');
-//   const deleteBtn = e.target.closest('.btn-delete-comment');
-
-//   if (editBtn) {
-//     const commentId = editBtn.dataset.commentId;
-//     const commentBody = editBtn.closest('.comment-item').querySelector('.comment-body'); // 댓글 내용
-
-//     commentInput.value = commentBody.textContent;
-//     commentSubmitBtn.textContent = '댓글 수정';
-//     commentSubmitBtn.classList.add('active');
-//     commentSubmitBtn.disabled = false;
-//     isEditing = true;
-
-//     currentEditCommentId = editBtn.dataset.commentId;
-//     currentEditCommentBody = editBtn.closest('.comment-item').querySelector('.comment-body');
-//   }
-
-//   if(deleteBtn) {
-//     currentDeleteCommentId = deleteBtn.dataset.commentId;
-//     commentDeleteModal.classList.add('active');
-//     document.body.classList.add('modal-open');
-//     currentDeleteItem = deleteBtn.closest('.comment-item');
-//   }
-// });
 commentDeleteConfirmBtn.addEventListener('click', async function () {
   const result = await deleteComment(currentDeleteCommentId);
       
@@ -363,7 +334,7 @@ commentDeleteConfirmBtn.addEventListener('click', async function () {
   // currentDeleteCommentId = deleteBtn.dataset.commentId 이렇게 dataset으로 불러오면 문자열이 불러와지기 때문에 
   // 타입을 맞추기 위해서 Number을 사용
   comments = comments.filter(comment => comment.commentId !== Number(currentDeleteCommentId));
-  renderComments();
+  rerenderComments();
 
   commentDeleteModal.classList.remove('active');
   document.body.classList.remove('modal-open');
@@ -387,15 +358,13 @@ commentSubmitBtn.addEventListener('click', async function() {
 
       // DOM 직접 수정 대신, 배열 갱신 + renderComments()
       // currentEditCommentId 와 돌고 있는 comment의 id가 같으면, 그 댓글 본문을 서버에서 받아온 데이터로 변경
-      console.log('map 실행 전:', JSON.stringify(comments.find(c => c.commentId === Number(currentEditCommentId))));
       comments = comments.map(comment =>
          comment.commentId === Number(currentEditCommentId)
            ? { ...comment, commentContent: result.data.commentContent }
            : comment //현재 수정 중인 댓글 ID가 아니면 그냥 comment를 새로운 배열 
        );
-       console.log('map 실행 후:', JSON.stringify(comments.find(c => c.commentId === Number(currentEditCommentId))));
 
-       renderComments();
+       rerenderComments();
 
       isEditing = false;
       currentEditCommentId = null;
@@ -406,8 +375,7 @@ commentSubmitBtn.addEventListener('click', async function() {
       //commentList.prepend(createCommentElement(result.data));
 
       comments = [result.data, ...comments];  // 새 댓글을 맨 앞에 추가 (prepend 대응)
-      console.log('comments 배열:', comments);
-      renderComments();                        // 두 번째 이후 호출 → else 블록 분기로 들어감 (diff,patch)
+      rerenderComments();;                        // 두 번째 이후 호출 → else 블록 분기로 들어감 (diff,patch)
 
       commentCountHeading.textContent = result.data.commentCount;
     }
