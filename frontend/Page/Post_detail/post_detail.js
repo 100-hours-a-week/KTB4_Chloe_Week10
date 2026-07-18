@@ -3,8 +3,8 @@ import { getPostImageUrl } from "../../API/imageRequest.js";
 import { getProfileImageUrl } from "../../API/imageRequest.js";
 
 import createElement from "./vdom/createElement.js";
-import { patchChildren } from "./vdom/patch.js";
-import { diffChildren } from "./vdom/diff.js";
+import { patch } from "./vdom/patch.js";
+import { diff } from "./vdom/diff.js";
 import render from "./vdom/render.js"
 
 const profileMenuBtn = document.getElementById('profileMenuBtn');
@@ -34,7 +34,7 @@ const commentDeleteCancelBtn = document.getElementById('commentDeleteCancel');
 const likeBtn = document.getElementById('likeBtn');
 const likeCount = document.getElementById('likeCount');
 
-const commentList = document.getElementById('commentList');
+let commentList = document.getElementById('commentList');
 const commentInput = document.getElementById('commentTextarea');
 const commentSubmitBtn = document.getElementById('commentSubmitBtn');
 
@@ -169,8 +169,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   //   commentList.appendChild(createCommentElement(comment));
   // });
 
-  comments = result.data.comments;  // 배열 자체를 state에 담기
-  renderComments();                  // 최초 호출 → if 블록 (!commentList._prevVnodeList) - 이 분기로 들어감 
+  comments = result.data.comments;  // 배열  자체를 state에 담기
+  mountComments();                  // 최초 호출
 
 });
 //게시글 수정 페이지 이동
@@ -195,6 +195,52 @@ postDeleteConfirmBtn.addEventListener('click', async function(){
 //댓글 생성 API 연동
 async function createComment(comment_data){
     return await request(`/posts/${postId}/comment`,'POST',comment_data);
+}
+
+function mountComments() {
+  // 1. 현재 comments 배열로 최상위 ul VNode 생성
+  const ulVnode = createElement('ul', { className: 'comment-list', id: 'commentList' },
+    ...comments.map(comment => createCommentVNode(comment))
+  );
+
+  // 2. VNode를 진짜 DOM으로 변환
+  const newUlDom = render(ulVnode);
+
+  // 3. 기존 <ul id="commentList">를 새로 만든 DOM으로 통째로 교체 (딱 1번만 일어남)
+  commentList.replaceWith(newUlDom);
+
+  // 4. 이후 diff/patch를 위한 기준값 저장
+  newUlDom._prevVnode = ulVnode;
+  newUlDom._domNode = newUlDom;
+
+  // 5. commentListEl 참조를 새 DOM으로 갱신 (이후 모든 코드가 이걸 기준으로 동작해야 하니까)
+  commentList = newUlDom;
+
+  //이벤트 등록
+  commentList.addEventListener('click', async function (e) {
+    const editBtn = e.target.closest('.btn-edit-comment');
+    const deleteBtn = e.target.closest('.btn-delete-comment');
+
+    if (editBtn) {
+      const commentBody = editBtn.closest('.comment-item').querySelector('.comment-body');
+
+      commentInput.value = commentBody.textContent;
+      commentSubmitBtn.textContent = '댓글 수정';
+      commentSubmitBtn.classList.add('active');
+      commentSubmitBtn.disabled = false;
+      isEditing = true;
+
+      currentEditCommentId = editBtn.dataset.commentId;
+      currentEditCommentBody = editBtn.closest('.comment-item').querySelector('.comment-body');
+    }
+
+    if (deleteBtn) {
+      currentDeleteCommentId = deleteBtn.dataset.commentId;
+      commentDeleteModal.classList.add('active');
+      document.body.classList.add('modal-open');
+      currentDeleteItem = deleteBtn.closest('.comment-item');
+    }
+  });
 }
 
 // 댓글 목록 부분 
@@ -237,91 +283,24 @@ function createCommentVNode(comment) {
 
 
 function renderComments() {
-  // 현재 comments 배열을 기준으로 Vnode로 바꿔서 생성
-  const newVnodeList = comments.map(comment => createCommentVNode(comment));
+  // 1. 현재 comments 배열로 새 ul VNode 생성 (mountComments와 똑같은 방식)
+  const newUlVnode = createElement('ul', { className: 'comment-list', id: 'commentList' },
+    ...comments.map(comment => createCommentVNode(comment))
+  );
+  console.log('이전 VNode:', commentList._prevVnode);
+  console.log('새 VNode:', newUlVnode);
 
-  //이전 노드가 없으니깐 최초 렌더링
-  if (!commentList._prevVnodeList) {
-    // 최초 렌더링 시에  아까 만든 newVnodeList 배열을 실제 DOM으로 바꿔서 commentList에 자식으로 붙여줌
-    newVnodeList.forEach(vnode => {
-      commentList.appendChild(render(vnode));
-    });
-  // 최초 렌더링이 아니라 리렌더링 일때 
-  } else {
-    // diffChildren으로 이전 목록과 새 목록 비교
-    // 여기서 diffChildren을 쓰는 이유는 지금 부모 노드인 commentList 부터 Vnode로 바꾸는 게 아니고, 그 자식들을 Vnode로 바꾸는 거기 때문에 
-    // 결론적으로 배열을 비교하는거기 때문에 바로 diffChildren으로 commentList의 이전의 자식 Vnode 배열과 새로 만들어진 Vnode 배열 비교해서 patch 객체 생성
-    const childrenPatches = diffChildren(commentList._prevVnodeList, newVnodeList);
-    // 여기서 patchChildren으로 DOM인 commentList에 적용하는 것도 위의 이유와 같음 
-    patchChildren(commentList, childrenPatches);
-  }
+  // 2. ul 전체(하나의 VNode)를 diff — 최상위부터 시작
+  const patches = diff(commentList._prevVnode, newUlVnode);
+  console.log('patch 결과:', patches);
 
-  // 다음 비교를 위해 현재 newVnodeList를 이전 Vnode로 저장 
-  // 리렌더링이 일어나면 preVnode가 바뀌게 됨.
-  commentList._prevVnodeList = newVnodeList;
+  // 3. ul 전체를 대상으로 patch 적용 — patch() 내부에서 필요하면 알아서 patchChildren 호출함
+  patch(commentList._domNode, patches);
+
+  // 4. 다음 비교를 위해 기준값 갱신
+  commentList._prevVnode = newUlVnode;
 }
 
-
-function createCommentElement(comment) {
-  const li = document.createElement('li');
-  li.className = 'comment-item';
-
-  const commentHeader = document.createElement('div');
-  commentHeader.className = 'comment-header';
-
-  const commentAuthorWrap = document.createElement('div');
-  commentAuthorWrap.className = 'comment-author-wrap';
-
-  const commentAvatar = document.createElement('div');
-  commentAvatar.className = 'author-avatar comment-avatar';
-  if (comment.profileImage) {
-      const authorAvatarImg = document.createElement('img');
-      authorAvatarImg.className = 'comment-author-avatar-img';
-      authorAvatarImg.src = getProfileImageUrl(comment.profileImage);
-      authorAvatarImg.alt = '';
-      commentAvatar.appendChild(authorAvatarImg);
-  }
-
-  const commentAuthor = document.createElement('span');
-  commentAuthor.className = 'comment-author';
-  commentAuthor.textContent = comment.commenter;
-
-  const commentDate = document.createElement('span');
-  commentDate.className = 'comment-date';
-  commentDate.textContent = formatDateTime(comment.commentDateWritten);
-
-  commentAuthorWrap.appendChild(commentAvatar);
-  commentAuthorWrap.appendChild(commentAuthor);
-  commentAuthorWrap.appendChild(commentDate);
-
-  const commentActions = document.createElement('div');
-  commentActions.className = 'comment-actions';
-
-  const editBtn = document.createElement('button');
-  editBtn.className = 'btn-action btn-edit-comment';
-  editBtn.textContent = '수정';
-  editBtn.dataset.commentId = comment.commentId;
-
-  const deleteBtn = document.createElement('button');
-  deleteBtn.className = 'btn-action btn-delete-comment';
-  deleteBtn.textContent = '삭제';
-  deleteBtn.dataset.commentId = comment.commentId;
-
-  commentActions.appendChild(editBtn);
-  commentActions.appendChild(deleteBtn);
-
-  commentHeader.appendChild(commentAuthorWrap);
-  commentHeader.appendChild(commentActions);
-
-  const commentBody = document.createElement('p');
-  commentBody.className = 'comment-body';
-  commentBody.textContent = comment.commentContent;
-
-  li.appendChild(commentHeader);
-  li.appendChild(commentBody);
-
-  return li;
-}
 
 //댓글 수정 API 연동
 async function editComment(commentId,comment_data){
@@ -347,48 +326,48 @@ let currentDeleteCommentId = null;
 let currentDeleteItem = null;
 
 //각 댓글 당 수정&삭제 버튼 등록..
-commentList.addEventListener('click', async function(e) {
+// commentList.addEventListener('click', async function(e) {
 
-  const editBtn = e.target.closest('.btn-edit-comment');
-  const deleteBtn = e.target.closest('.btn-delete-comment');
+//   const editBtn = e.target.closest('.btn-edit-comment');
+//   const deleteBtn = e.target.closest('.btn-delete-comment');
 
-  if (editBtn) {
-    const commentId = editBtn.dataset.commentId;
-    const commentBody = editBtn.closest('.comment-item').querySelector('.comment-body'); // 댓글 내용
+//   if (editBtn) {
+//     const commentId = editBtn.dataset.commentId;
+//     const commentBody = editBtn.closest('.comment-item').querySelector('.comment-body'); // 댓글 내용
 
-    commentInput.value = commentBody.textContent;
-    commentSubmitBtn.textContent = '댓글 수정';
-    commentSubmitBtn.classList.add('active');
-    commentSubmitBtn.disabled = false;
-    isEditing = true;
+//     commentInput.value = commentBody.textContent;
+//     commentSubmitBtn.textContent = '댓글 수정';
+//     commentSubmitBtn.classList.add('active');
+//     commentSubmitBtn.disabled = false;
+//     isEditing = true;
 
-    currentEditCommentId = editBtn.dataset.commentId;
-    currentEditCommentBody = editBtn.closest('.comment-item').querySelector('.comment-body');
-  }
+//     currentEditCommentId = editBtn.dataset.commentId;
+//     currentEditCommentBody = editBtn.closest('.comment-item').querySelector('.comment-body');
+//   }
 
-  if(deleteBtn) {
-    currentDeleteCommentId = deleteBtn.dataset.commentId;
-    commentDeleteModal.classList.add('active');
-    document.body.classList.add('modal-open');
-    currentDeleteItem = deleteBtn.closest('.comment-item');
-  }
-});
-    commentDeleteConfirmBtn.addEventListener('click', async function () {
-      const result = await deleteComment(currentDeleteCommentId);
+//   if(deleteBtn) {
+//     currentDeleteCommentId = deleteBtn.dataset.commentId;
+//     commentDeleteModal.classList.add('active');
+//     document.body.classList.add('modal-open');
+//     currentDeleteItem = deleteBtn.closest('.comment-item');
+//   }
+// });
+commentDeleteConfirmBtn.addEventListener('click', async function () {
+  const result = await deleteComment(currentDeleteCommentId);
       
-      // 이전 방식
-      // currentDeleteItem.remove();
+  // 이전 방식
+  // currentDeleteItem.remove();
 
-      // 배열에서 해당 댓글만 제외하고 새 배열 만들기
-      // filter는 배열을 순회하면서, 조건이 true인 것들만 골라서 새 배열을 만드는 메서드
-      // currentDeleteCommentId = deleteBtn.dataset.commentId 이렇게 dataset으로 불러오면 문자열이 불러와지기 때문에 
-      // 타입을 맞추기 위해서 Number을 사용
-      comments = comments.filter(comment => comment.commentId !== Number(currentDeleteCommentId));
-      renderComments();
+  // 배열에서 해당 댓글만 제외하고 새 배열 만들기
+  // filter는 배열을 순회하면서, 조건이 true인 것들만 골라서 새 배열을 만드는 메서드
+  // currentDeleteCommentId = deleteBtn.dataset.commentId 이렇게 dataset으로 불러오면 문자열이 불러와지기 때문에 
+  // 타입을 맞추기 위해서 Number을 사용
+  comments = comments.filter(comment => comment.commentId !== Number(currentDeleteCommentId));
+  renderComments();
 
-      commentDeleteModal.classList.remove('active');
-      document.body.classList.remove('modal-open');
-      commentCountHeading.textContent = result.data.commentCount;
+  commentDeleteModal.classList.remove('active');
+  document.body.classList.remove('modal-open');
+  commentCountHeading.textContent = result.data.commentCount;
 });
 
 
@@ -402,17 +381,21 @@ commentSubmitBtn.addEventListener('click', async function() {
     if (isEditing) {
 		   //currentEditCommentId는 해당 댓글의 수정 버튼이 눌리면 값이 들어가짐.
       const result = await editComment(currentEditCommentId, comment_data);
+      console.log('editComment 응답:', result.data); // 여기 찍어보기
       // 이전 방식
-      currentEditCommentBody.textContent = result.data.commentContent; 
+      // currentEditCommentBody.textContent = result.data.commentContent; 
 
       // DOM 직접 수정 대신, 배열 갱신 + renderComments()
       // currentEditCommentId 와 돌고 있는 comment의 id가 같으면, 그 댓글 본문을 서버에서 받아온 데이터로 변경
-      // comments = comments.map(comment =>
-      //   comment.commentId === Number(currentEditCommentId)
-      //     ? { ...comment, commentContent: result.data.comment_content }
-      //     : comment //현재 수정 중인 댓글 ID가 아니면 그냥 comment를 새로운 배열 
-      // );
-      // renderComments();
+      console.log('map 실행 전:', JSON.stringify(comments.find(c => c.commentId === Number(currentEditCommentId))));
+      comments = comments.map(comment =>
+         comment.commentId === Number(currentEditCommentId)
+           ? { ...comment, commentContent: result.data.commentContent }
+           : comment //현재 수정 중인 댓글 ID가 아니면 그냥 comment를 새로운 배열 
+       );
+       console.log('map 실행 후:', JSON.stringify(comments.find(c => c.commentId === Number(currentEditCommentId))));
+
+       renderComments();
 
       isEditing = false;
       currentEditCommentId = null;

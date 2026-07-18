@@ -11,8 +11,10 @@ export default function render(vnode){
 
     // 가상 DOM의 속성을 Object.entries를 통해 [key, value]로 받아 html 요소에 할당
     for (const [k, v] of Object.entries(vnode.props)) {
-        if (k === 'key') continue; // key는 실제 DOM 속성으로 안 나감
-
+        if (k === 'key'){
+            domNode.setAttribute('data-key', v); //key 값을 실제 DOM에 같이 속성으로 두기
+            continue; 
+        }
         if (k.startsWith('on')) {
             const eventName = k.slice(2).toLowerCase(); // onClick → click
             domNode.addEventListener(eventName, v);
@@ -20,7 +22,10 @@ export default function render(vnode){
             // 렌더할 때도 리스너 기억해두기 위해 속성으로 저장
             domNode._listeners = domNode._listeners || {};
             domNode._listeners[eventName] = v;
-        } else {
+        } else if (k === 'className') {
+            domNode.setAttribute('class', v); // className → class로 변환
+        } 
+        else {
             domNode.setAttribute(k, v);
         }
     }

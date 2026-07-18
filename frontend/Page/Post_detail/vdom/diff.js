@@ -1,6 +1,6 @@
 import render from './render.js'
 
-export default function diff(oldVnode,newVnode){
+export function diff(oldVnode,newVnode){
     //노드가 삭제된 경우
     if(!newVnode){
         return { 
@@ -43,7 +43,8 @@ export default function diff(oldVnode,newVnode){
     return {
         type: 'UPDATE',
         propsPatches: diffProps(oldVnode.props, newVnode.props),
-        childrenPatches: diffChildren(oldVnode.children, newVnode.children)
+        childrenPatches: diffChildren(oldVnode.children, newVnode.children),
+        newChildren: newVnode.children // ← 추가: patch 단계에서 재배치할 때 필요
     }
 
 
@@ -73,7 +74,7 @@ function diffProps(oldProps,newProps){
   return { toSet, toRemove };
 }
 
-function diffChildren(oldChildVnode,newChildVnode){
+export function diffChildren(oldChildVnode,newChildVnode){
     const patches =[];
 
     // 1. oldChildren을 key 기준으로 빠르게 찾을 수 있게 Map 생성
@@ -102,7 +103,7 @@ function diffChildren(oldChildVnode,newChildVnode){
 
         if (!old) {
         // old에 없던 key → 새로 생김
-        patches.push({ type: 'CREATE', newVNode: newChild, toIndex: newIndex });
+        patches.push({ type: 'CREATE', newVNode: newChild, toIndex: newIndex, key });
         } else {
         // old에 있던 key → 내용 비교(재귀 diff)
         const contentPatch = diff(old.vnode, newChild);
@@ -117,7 +118,8 @@ function diffChildren(oldChildVnode,newChildVnode){
             moved,             // 위치가 바뀌었는지
             //old의 index에서 new의 index로 위치 변경
             fromIndex: old.index,
-            toIndex: newIndex
+            toIndex: newIndex,
+            key
         });
 
         oldMap.delete(key); // 매칭 완료 → 삭제 대상에서 제외
@@ -125,8 +127,8 @@ function diffChildren(oldChildVnode,newChildVnode){
     });
 
     // 3. oldMap에 남은 것 = new에 없는 것 = 삭제 대상
-    oldMap.forEach(({ vnode, index }) => {
-        patches.push({ type: 'REMOVE', fromIndex: index });
+    oldMap.forEach(({ vnode, index },key) => {
+        patches.push({ type: 'REMOVE', fromIndex: index ,key});
     });
 
     return patches;
