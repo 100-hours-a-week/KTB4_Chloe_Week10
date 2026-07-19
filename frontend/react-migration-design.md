@@ -1,4 +1,4 @@
-아# FitMate React 마이그레이션 — 컴포넌트 트리 & 상태 설계
+FitMate React 마이그레이션 — 컴포넌트 트리 & 상태 설계
 
 > 근거 자료: `react-migration-analysis.md` (페이지/기능 인벤토리, 상태 관리 방식 분석)
 > 이 문서는 그 분석을 바탕으로 실제 React 컴포넌트 트리와 상태 설계를 제안합니다.
