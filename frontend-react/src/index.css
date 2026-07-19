@@ -1,0 +1,39 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --primary: #ff6f61;
+  --primary-hover: #e85a4f;
+  --primary-light: #ffe7e3;
+  --mint: #4ecdc4;
+  --bg: #fff8f6;
+  --card-bg: #ffffff;
+  --text: #2d2a26;
+  --text-sub: #8c8681;
+  --border: #f0e0dc;
+}
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
