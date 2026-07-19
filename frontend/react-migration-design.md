@@ -1,4 +1,4 @@
-# FitMate React 마이그레이션 — 컴포넌트 트리 & 상태 설계
+아# FitMate React 마이그레이션 — 컴포넌트 트리 & 상태 설계
 
 > 근거 자료: `react-migration-analysis.md` (페이지/기능 인벤토리, 상태 관리 방식 분석)
 > 이 문서는 그 분석을 바탕으로 실제 React 컴포넌트 트리와 상태 설계를 제안합니다.
@@ -115,36 +115,45 @@ PostDetailPage                         (AppLayout의 <Outlet />에 렌더링됨 
 두 페이지는 로직이 90% 이상 동일하므로(분석 자료 5절) 트리도 `mode` prop만 다르게 합성합니다.
 
 ```
-PostWritePage / PostEditPage           (AppLayout의 <Outlet />에 렌더링됨 — 0-1절)
-└─ PostForm (mode="create" | "edit", initialValues?)
-   ├─ ValidatedField (title, 글자수 카운터 포함)
-   ├─ ValidatedField (content)
-   ├─ ImageUploader     (파일명 표시 포함)
-   └─ SubmitButton
+PostWritePage / PostEditPage
+└─ AppLayout
+   ├─ Sidebar
+   ├─ Header
+   └─ PostForm (mode="create" | "edit", initialValues?)
+      ├─ ValidatedField (title, 글자수 카운터 포함)
+      ├─ ValidatedField (content)
+      ├─ ImageUploader     (파일명 표시 포함)
+      └─ SubmitButton
 ```
 
 ### 1-6. Profile Edit (`Page/Profile_edit`)
 
 ```
-ProfileEditPage                        (AppLayout의 <Outlet />에 렌더링됨 — 0-1절)
-├─ ProfileEditForm
-│  ├─ ProfileImageUploader (미리보기)
-│  ├─ ReadonlyField (email)
-│  ├─ ValidatedField (nickname)
-│  └─ SubmitButton
-├─ ConfirmModal (회원탈퇴용)
-└─ Toast
+ProfileEditPage
+└─ AppLayout
+   ├─ Sidebar
+   ├─ Header
+   ├─ ProfileEditForm
+   │  ├─ ProfileImageUploader (미리보기)
+   │  ├─ ReadonlyField (email)
+   │  ├─ ValidatedField (nickname)
+   │  └─ SubmitButton
+   ├─ ConfirmModal (회원탈퇴용)
+   └─ Toast
 ```
 
 ### 1-7. Password Edit (`Page/Password_edit`)
 
 ```
-PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 — 0-1절)
-├─ PasswordEditForm
-│  ├─ ValidatedField (password)
-│  ├─ ValidatedField (passwordConfirm)
-│  └─ SubmitButton
-└─ Toast
+PasswordEditPage
+└─ AppLayout
+   ├─ Sidebar
+   ├─ Header
+   ├─ PasswordEditForm
+   │  ├─ ValidatedField (password)
+   │  ├─ ValidatedField (passwordConfirm)
+   │  └─ SubmitButton
+   └─ Toast
 ```
 
 ---
@@ -155,7 +164,7 @@ PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 
 
 | 컴포넌트 | 역할 | 받는 props | 자체 상태 |
 |---|---|---|---|
-| `AppLayout` | 사이드바+헤더+본문 레이아웃 뼈대, 레이아웃 라우트로 한 번만 마운트(0-1절) | 없음 (자식 라우트는 `<Outlet />`으로 렌더링) | 없음 (Sidebar/Header가 각자 상태 보유, 페이지 전환에도 유지됨) |
+| `AppLayout` | 사이드바+헤더+본문 레이아웃 뼈대 | `children` | 없음 (Sidebar가 접힘 상태 보유) |
 | `Sidebar` | 내비게이션, 접힘/펼침 토글 | `activeMenu`(선택) | `collapsed: boolean` (로컬) |
 | `Header` / `ProfileDropdown` | 프로필 메뉴, 로그아웃, 드롭다운 | 없음 (내부에서 `useAuth` 사용) | `dropdownOpen: boolean` (로컬) |
 | `ConfirmModal` | 확인/취소 다이얼로그 공용 틀 | `open`, `title`, `description`, `onConfirm`, `onCancel` | 없음 (완전 제어 컴포넌트) |
@@ -245,8 +254,8 @@ PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 
 
 | 상태 | 위치 | 비고 |
 |---|---|---|
-| 사이드바 접힘/펼침 | `Sidebar` | 다른 컴포넌트가 참조하지 않아 로컬로 충분. `AppLayout`이 레이아웃 라우트로 한 번만 마운트되므로(0-1절) 페이지를 이동해도 `Sidebar` 인스턴스가 유지되어 접힘 상태가 그대로 보존됨 — 매 페이지 로드가 곧 새 HTML 로드였던 기존 vanilla 동작(페이지 이동 시 초기화)과는 달라지는 지점 |
-| 프로필 드롭다운 열림 | `Header` | 위와 같은 이유로 로컬 상태로 충분하며, 페이지 전환 후에도 값이 유지됨 |
+| 사이드바 접힘/펼침 | `Sidebar` | 다른 컴포넌트가 참조하지 않음. 페이지 이동 시 초기화되는 기존 동작과 동일 |
+| 프로필 드롭다운 열림 | `Header` | 위와 동일 |
 | 폼 입력값(`values`)·필드 에러(`errors`) | 각 `*Form` 컴포넌트 | 제출 시점에만 부모(Page)로 전달(`onSubmit(values)`). 필드별 `isValidX` 불리언을 따로 두지 않고 하나의 `errors` 객체로 통합(5절 참고) |
 | 댓글 입력창의 임시 텍스트(`draft`) | `CommentForm` | 등록/수정 모드 전환 시에도 입력창 자체는 이 컴포넌트가 소유. `editingComment` prop이 바뀌면 `useEffect`로 프리필 |
 | 이미지 파일 미리보기 URL | 각 업로더 컴포넌트 또는 폼 `values.imageFile`에서 파생 계산 | `URL.createObjectURL` 결과를 별도 state로 저장하지 않고 `useMemo`로 파생시키는 것을 권장(메모리 해제 누락 방지) |
@@ -272,25 +281,6 @@ PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 
   - `CommentItem`의 삭제 버튼 클릭 → `onRequestDelete(commentId)` → `deleteTargetCommentId` state 설정 + 모달 `open=true` → `ConfirmModal`의 확인 클릭 → `PostDetailPage`가 `deleteComment(deleteTargetCommentId)` 호출 → 성공 시 `comments`에서 filter.
   - `LikeButton` 클릭 → `onToggle()` → `PostDetailPage`가 현재 `isLiked` 값을 보고 `likePost`/`unlikePost` 중 호출 → 응답의 `like_count`로 상태 갱신.
 
-### Post Detail — 리렌더링 최적화 (`React.memo`)
-
-`usePostDetail`의 모든 state가 하나의 컴포넌트(`PostDetailPage`)에 귀속되어 있으므로(3절), `isLiked`/`comments`/`editingComment` 중 무엇 하나만 바뀌어도 `PostDetailPage` 전체가 리렌더링됩니다. React는 기본적으로 부모가 리렌더링되면 자식도 props 비교 없이 함께 리렌더링하므로(자식이 `React.memo`로 감싸져 있지 않은 이상), 예를 들어 `LikeButton` 클릭 한 번으로 `isLiked`/`likeCount`만 바뀌어도 `PostHeader`, `CommentList`와 그 안의 `CommentItem × N`까지 전부 불필요하게 다시 렌더링됩니다.
-
-이를 막기 위해 표시 전용 하위 컴포넌트들을 `React.memo`로 감쌉니다.
-
-| 컴포넌트 | `React.memo` 적용 | 효과 |
-|---|---|---|
-| `PostHeader` | O | `post`가 바뀔 때만 리렌더링(좋아요/댓글 변경과 무관해짐) |
-| `PostTopBar` | O | `viewCount`/`isOwner`가 바뀔 때만 |
-| `LikeButton` | O | `liked`/`likeCount`가 바뀔 때만 |
-| `CommentList` | O | `comments` 배열 참조가 바뀔 때만 |
-| `CommentItem` | O | 자신의 `comment`나 "지금 자신이 수정 대상인지 여부"가 바뀔 때만 — 댓글 N개 중 실제로 영향받는 항목만 리렌더링 |
-| `ConfirmModal` (×2) | O | `open` 여부가 바뀔 때만 |
-
-**전제 조건**: `React.memo`는 props를 얕은 비교(shallow compare)합니다. `PostDetailPage`가 매 렌더링마다 `onEdit`, `onRequestDelete`, `onToggle` 같은 콜백을 새 함수로 만들어 내려주면 참조가 매번 달라져서 `React.memo`가 무력화됩니다. 따라서 `usePostDetail`이 반환하는 이 콜백들은 `useCallback`으로 감싸 참조를 안정화해야 `React.memo`가 실제로 리렌더링을 건너뛸 수 있습니다.
-
-같은 이유로 **함수가 아닌 객체/배열 형태의 파생 prop**도 조심해야 합니다. 예를 들어 `CommentItem`에 "지금 이 댓글이 수정 대상인지" 같은 값을 `{ isEditingThis, isDeleteTarget }`처럼 매 렌더링마다 새로 묶은 객체로 내려주면, 값 자체는 안 바뀌어도 객체 참조가 매번 달라져서 역시 `React.memo`가 무력화됩니다. 이런 파생값은 `useMemo`로 감싸 참조를 고정하거나(의존성: `comment.commentId`, `editingComment`, `deleteTargetCommentId`), 더 간단하게는 객체로 묶지 말고 `isEditingThis`처럼 boolean/문자열 등 **원시값(primitive)을 각각 별도 prop으로** 내려주는 편을 권장합니다 — 원시값은 값이 같으면 얕은 비교를 그대로 통과하므로 `useMemo` 없이도 안전합니다. 참고로 `post`, `comments`, `editingComment` 자체는 가공 없이 원본 state를 그대로 내려주는 것이라(3절) 이미 참조가 안정적이며, `useMemo`가 필요한 대상은 위처럼 여러 값을 새로 묶거나 매 렌더링마다 재계산하는 파생 객체/배열에 한정됩니다.
-
 ### Post Write / Post Edit
 - `PostWritePage`/`PostEditPage`가 각각 `writePost`/`editPost`(+ 수정은 진입 시 `defaultEditPage`) API를 소유.
 - `PostForm`은 `values`(제어 상태)만 들고 있다가 제출 버튼 클릭 시 `onSubmit(values)`로 Page에 전달. Page가 `FormData` 구성 + API 호출 + 성공 후 라우팅까지 담당.
@@ -315,7 +305,6 @@ PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 
 | `classList.add`/`remove`로 `active`/`liked`/`collapsed`/`show` 등의 상태 표현 | "지금 좋아요 상태인가?"를 알려면 DOM class를 다시 읽어야 함(`likeBtn.classList.contains('liked')`, `post_detail.js:404`) — 상태의 원천이 DOM | `liked`, `collapsed` 등은 boolean state가 원천이 되고, className은 `liked ? 'active' : ''`처럼 그 상태의 **파생값**으로만 계산 |
 | 댓글 목록: 최초엔 `innerHTML`/`appendChild` 1회성 렌더 → 이후 직접 만든 mini-vdom(`diff`/`patch`)으로 재렌더 | 배열 상태 변경 → 재렌더링 트리거를 직접 구현/유지보수해야 함(이 저장소의 `vdom/` 4개 파일 전체가 이 문제 하나를 위한 코드) | `comments` state 배열만 불변 업데이트(map/filter/spread)하면 React가 재조정(reconciliation)을 알아서 수행 — `diff`/`patch`/`mountComments`/`rerenderComments` 같은 수동 파이프라인이 통째로 필요 없어짐 |
 | 로그아웃 버튼: `Profile_edit.js`에만 이벤트 리스너 등록, 나머지 5개 페이지는 HTML만 있고 리스너 없음 | 페이지마다 JS 파일이 독립이라 같은 마크업이라도 로직을 각자 다시 붙여야 하고, 빠뜨려도 아무 에러 없이 조용히 무반응 | `Header` 공용 컴포넌트 하나에만 로그아웃 로직을 구현하고 모든 페이지가 `AppLayout`을 통해 재사용 → 구조적으로 빠뜨릴 수 없음(버그가 아키텍처 차원에서 제거됨) |
-| 사이드바/헤더 마크업이 6개 HTML 파일에 반복 존재 + 페이지 이동이 곧 새 HTML 로드라 접힘/드롭다운 상태가 매번 초기화 | 마크업 중복. 그리고 "상태를 유지한다"는 개념 자체가 없었음(멀티 페이지 앱 구조상 당연했던 제약이지, 의도한 동작은 아니었음) | `AppLayout`을 레이아웃 라우트로 한 번만 배치(0-1절) → 마크업 중복이 없어지는 것은 물론, SPA 전환에서는 `Sidebar`/`Header` 인스턴스가 unmount되지 않아 접힘/드롭다운 상태도 페이지 이동과 무관하게 자연스럽게 유지됨 |
 | `Toast`/포맷 함수(`formatCount`,`formatDateTime`)/검증 정규식이 파일마다 복붙 | 한 곳을 고치면 나머지 복사본은 그대로 남아 동작이 어긋날 위험(예: 정규식 4곳 중 하나만 수정) | 공용 유틸(`validators.js`,`format.js`) + 공용 컴포넌트/훅(`Toast`,`useToast`)으로 단일화 |
 | 필드별 `isValidEmail`/`isValidPassword`/... 불리언을 따로 두고 검증할 때마다 수동으로 `activeXButton()` 호출 | 검증 로직과 "버튼 활성화 여부 재계산"을 매 핸들러마다 나란히 호출해야 함 — 하나라도 호출을 빠뜨리면 버튼 상태가 실제 값과 불일치 | 폼 전체를 하나의 `values`+`errors` 객체로 관리하고, 제출 버튼의 `disabled`는 `Object.values(errors).some(Boolean)`처럼 **파생 계산값**으로 처리 → 별도 동기화 호출이 필요 없음 |
 | `localStorage.getItem('accessToken')`을 `request.js`뿐 아니라 여러 페이지가 직접 읽음, `Profile_edit.js`는 아예 `request.js`를 우회해 `fetch`를 직접 호출(공통 에러 처리 미적용) | 인증 상태의 "원천"이 여러 곳에 흩어져 있어 정책(토큰 만료 처리 등) 변경 시 모든 참조 지점을 찾아 고쳐야 함 | `AuthContext` 하나가 accessToken을 소유하고 API 레이어가 이를 참조 → 모든 요청이 동일한 인증/에러 처리 경로를 강제로 통과 |
