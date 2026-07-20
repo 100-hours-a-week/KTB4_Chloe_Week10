@@ -10,3 +10,13 @@ export function isValidEmail(email) {
 export function isValidPassword(password) {
   return PASSWORD_REGEX.test(password);
 }
+
+// Signup.js:147-158, profile_edit.js:129-141에 복붙되어 있던 닉네임 검증(길이>10 → 공백 → 빈값 순서까지 동일).
+// 메시지 1곳만 실제로 달랐음: Signup은 "낙네임을 입력해주세요"(오타, 마침표 없음),
+// profile_edit은 "닉네임을 입력해주세요."(정상 표기) — 오타가 있는 쪽이 아니라 profile_edit 쪽 문구를 채택.
+export function getNicknameError(nickname) {
+  if (nickname.length > 10) return '닉네임은 최대 10자 까지 작성 가능합니다.';
+  if (/\s/.test(nickname)) return '띄어쓰기를 없애주세요.';
+  if (!nickname) return '닉네임을 입력해주세요.';
+  return '';
+}
