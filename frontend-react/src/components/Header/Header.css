@@ -7,6 +7,23 @@
   align-items: center;
 }
 
+/* collapsed-topbar(화면 상단바)에 놓일 때: 사이드바 하단 고정 스타일을 걷어내고 우측 정렬 */
+.sidebar-profile--topbar {
+  margin-top: 0;
+  margin-left: auto;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* sidebar-profile은 기본적으로 위로 열리는 드롭다운을 전제로 하지만(bottom anchor),
+   상단바에서는 화면 밖으로 잘리므로 아래로 열리도록 방향을 뒤집는다 */
+.sidebar-profile--topbar .dropdown-menu {
+  bottom: auto;
+  top: calc(100% + 8px);
+  left: auto;
+  right: 0;
+}
+
 .btn-profile-header {
   width: 34px;
   height: 34px;

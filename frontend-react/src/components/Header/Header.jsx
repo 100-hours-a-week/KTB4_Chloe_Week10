@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 
 // TODO(0단계 후속): accessToken 삭제/프로필 이미지 조회는 useAuth(AuthContext) 도입 시 그쪽으로 이관
-function Header({ profileImageUrl = '' }) {
+// variant: 'sidebar'(펼침 상태, 사이드바 하단 고정) | 'topbar'(접힘 상태, collapsed-topbar 우측) — 드롭다운 열리는 방향이 서로 반대라 분기
+function Header({ profileImageUrl = '', variant = 'sidebar' }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -11,13 +12,14 @@ function Header({ profileImageUrl = '' }) {
     setDropdownOpen((prev) => !prev);
   }
 
+  // 로그아웃 로직
   function handleLogout() {
     localStorage.removeItem('accessToken');
     navigate('/login');
   }
 
   return (
-    <div className="sidebar-profile">
+    <div className={`sidebar-profile sidebar-profile--${variant}`}>
       <button type="button" className="btn-profile-header" onClick={handleToggleDropdown}>
         <img className="profile-icon" src={profileImageUrl} alt="프로필" />
       </button>

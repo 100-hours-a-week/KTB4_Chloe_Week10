@@ -339,3 +339,37 @@ PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 
 | `commentList._prevVnode` / `_domNode` (`post_detail.js:256-257,297,300,303`) | `mountComments`/`rerenderComments` 호출마다 | **대응 상태 없음** | React의 내부 fiber 트리가 이 역할을 완전히 대체 — 애플리케이션 코드에서 "이전 트리"를 직접 들고 있을 필요가 없음 |
 | `commentCountHeading.textContent` (댓글 생성/삭제 응답의 `commentCount`) | 댓글 생성/삭제 성공 시 | `commentCount` (`usePostDetail` 내부 state) | API 응답의 `result.data.commentCount`로 `setCommentCount(...)`, `CommentCountHeading`은 이 값을 그대로 표시 |
 | `comment.commentId`를 vnode의 `key`로 사용(`post_detail.js:219`, "key 필수!" 주석) | vdom diff가 리스트 아이템을 식별하기 위해 | `<CommentItem key={comment.commentId} .../>` | 동일한 이유(리스트 재조정 시 아이템 식별)로 React에서도 그대로 유지해야 하는 값 — vdom에서 React로 넘어가도 "댓글은 commentId를 key로 식별한다"는 설계는 변하지 않음 |
+
+---
+
+## 계획 대비 변경점
+
+이 절은 위 1~5절(원래 설계)을 수정하지 않고, 실제 구현(`frontend-react/src/components/`) 단계에서 설계와 달라진 부분만 추가로 기록합니다. 둘 다 설계를 다시 짠 것이 아니라, **원본 vanilla HTML(`frontend/Page/Board/board.html`)의 DOM 구조·동작을 그대로 재현하려다 보니** 0-1절 다이어그램(38-44행)이나 3절 "로컬 상태" 표만으로는 드러나지 않던 물리적 제약이 나온 경우입니다.
+
+### ① `Header` 렌더링 위치 — `AppLayout` 형제 → `Sidebar` 내부
+
+0-1절 다이어그램은 `Header`를 `AppLayout` 아래 `Sidebar`의 형제로 그렸지만, 실제로는 `Sidebar` 내부(`.sidebar-profile` 슬롯)에서 렌더링합니다.
+
+| 구분 | 내용 |
+|---|---|
+| 원본 동작 | `.sidebar-profile`(프로필 드롭다운)이 `<aside class="sidebar">` 안에 있어, 사이드바가 접히면(`.sidebar.collapsed { display: none; }`) 프로필 메뉴도 함께 사라짐 |
+| 문제 | `Header`를 `AppLayout`의 형제로 두면, 사이드바가 접혀도 `Header`만 독립적으로 화면에 남아 원본과 달라짐 |
+| 변경 | `Header`를 `Sidebar` 내부(`.sidebar-profile` 슬롯)에서 렌더링하도록 위치 변경 (펼쳐진 상태 기준 — 접힌 상태 처리는 ③ 참고) |
+
+### ② `collapsed` 상태 소유권 — `Sidebar` → `AppLayout`
+
+3절 "로컬 상태" 표는 사이드바 접힘/펼침 상태를 `Sidebar` 로컬로 두었지만("다른 컴포넌트가 참조하지 않아 로컬로 충분"), 실제로는 `AppLayout`이 소유합니다.
+
+| 구분 | 내용 |
+|---|---|
+| 원본 동작 | 사이드바를 펼치는 버튼(`collapsed-topbar`)이 원본 DOM상 `Sidebar`가 아니라 `content-area` 쪽에 위치 (`Sidebar.jsx` 주석 참고) |
+| 문제 | `Sidebar`가 `collapsed` state를 단독 소유하면, `content-area`에 있는 버튼이 이 상태를 제어할 수 없음 |
+| 변경 | `AppLayout`이 `collapsed` state를 소유하고, `collapsed`/`onCollapse`를 `Sidebar`에 props로 전달하는 구조로 끌어올림 |
+
+### ③ (추가 개선 — 원본에는 없던 동작) 접힘 상태에서도 프로필 메뉴 접근 가능
+
+- **원본의 한계**: 사이드바가 접히면 프로필 메뉴 자체가 사라져, 접힌 상태에서는 로그아웃/회원정보수정에 접근할 수 없었음
+- **개선**: `Header`를 `collapsed-topbar` 안에도 추가로 렌더링 (`variant="topbar"` prop으로 드롭다운이 위가 아니라 아래로 열리도록 분기)
+- **구조**: 아래 두 `Header`는 서로 다른 컴포넌트 인스턴스이며, 사이드바 CSS(`display:none`)와 `collapsed-topbar`의 `hidden` 속성으로 항상 하나만 화면에 보이도록 상호 배타적으로 토글됨
+  - `Sidebar` 내부의 `Header` — 펼침 상태, `variant="sidebar"` (드롭다운 위로 열림)
+  - `collapsed-topbar` 안의 `Header` — 접힘 상태, `variant="topbar"` (드롭다운 아래로 열림)
