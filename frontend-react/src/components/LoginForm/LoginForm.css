@@ -1,0 +1,32 @@
+/* frontend/Page/Login/login.css의 .form-card/.btn-login 블록만 포팅 — 카드 타이틀/가입 링크는 LoginPage 소관 */
+.form-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  background-color: #F5B8AE;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: not-allowed;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-login.active {
+  background-color: var(--primary);
+  cursor: pointer;
+}
+
+.btn-login.active:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-login.active:active {
+  transform: scale(0.98);
+}
