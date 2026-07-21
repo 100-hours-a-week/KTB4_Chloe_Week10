@@ -16,12 +16,14 @@ function PostTopBar({ viewCount, isOwner, onEdit, onRequestDelete }) {
           <ViewIcon className="icon-eye" />
           <span>{formatCount(viewCount)}</span>
         </span>
+        {/* 소유권이 있으면 수정&삭제 버튼 표시 */}
         {isOwner && (
           <>
             <button type="button" className="btn-action" onClick={onEdit}>
               수정
             </button>
-            <button type="button" className="btn-action btn-delete-post" onClick={onRequestDelete}>
+            <button type="button" className="b
+            tn-action btn-delete-post" onClick={onRequestDelete}>
               삭제
             </button>
           </>

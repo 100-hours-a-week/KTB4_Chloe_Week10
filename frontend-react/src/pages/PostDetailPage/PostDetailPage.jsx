@@ -50,12 +50,12 @@ function PostDetailPage() {
       isLiked={isLiked}
       likeCount={likeCount}
       onEdit={() => navigate(`/posts/${postId}/edit`)}
-      onRequestDelete={() => setDeleteModalOpen(true)}
+      onRequestDelete={() => setDeleteModalOpen(true)} //게시글에 있는 삭제 버튼 눌렀을 때
       onToggleLike={toggleLike}
       onReport={handleReport}
       deleteModalOpen={deleteModalOpen}
-      onConfirmDelete={handleConfirmDelete}
-      onCancelDelete={() => setDeleteModalOpen(false)}
+      onConfirmDelete={handleConfirmDelete} //모달 창의 삭제 확인 버튼
+      onCancelDelete={() => setDeleteModalOpen(false)} //모달 창의 삭제 취소 버튼
     />
   );
 }

@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import request from '../api/request';
 
 // 원본: frontend/Page/Post_detail/post_detail.js
-// 이번 단계 범위: 게시글 표시 + 삭제 + 좋아요 + 신고(5개 API)만. 댓글 API/상태(createComment/editComment/
-// deleteComment, comments 배열)는 다음 단계에서 이 훅에 추가 예정 — 지금은 손대지 않음.
 
 //게시글 상세 조회 
 async function getDetailPost(postId) {
@@ -25,9 +23,24 @@ async function unlikePost(postId) {
   return request(`/posts/${postId}/like`, 'DELETE');
 }
 
-//게시글 신고 
+//게시글 신고
 async function reportPost(postId) {
   return request(`/posts/${postId}/declaration`, 'POST');
+}
+
+//댓글 생성
+async function createComment(postId, commentData) {
+  return request(`/posts/${postId}/comment`, 'POST', commentData);
+}
+
+//댓글 수정
+async function editComment(postId, commentId, commentData) {
+  return request(`/posts/${postId}/comment/${commentId}`, 'PUT', commentData);
+}
+
+//댓글 삭제
+async function deleteComment(postId, commentId) {
+  return request(`/posts/${postId}/comment/${commentId}`, 'DELETE');
 }
 
 function usePostDetail(postId) {
@@ -36,7 +49,12 @@ function usePostDetail(postId) {
   const [likeCount, setLikeCount] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
 
-  
+  const [comments, setComments] = useState([]); // post_detail.js:127 `let comments = []` 대응 (부록 참고)
+  const [editingComment, setEditingComment] = useState(null); // 수정 대상 댓글 객체 또는 null (currentEditCommentId/Body 대응)
+  // editingComment는 댓글 입력창에 수정하려는 댓글의 본문이 떠야하기 때문에 댓글 객체 전체를 저장
+  const [deleteTargetCommentId, setDeleteTargetCommentId] = useState(null); // currentDeleteCommentId 대응
+
+
   const [isLoading, setIsLoading] = useState(true); //로딩중인지
   const [error, setError] = useState(false); //에러났는지
 
@@ -61,6 +79,7 @@ function usePostDetail(postId) {
         setIsLiked(Boolean(result.data.is_liked));
         setLikeCount(result.data.post.like_count);
         setCommentCount(result.data.post.comment_count);
+        setComments(result.data.comments);
 
       } catch (err) {
         if (!cancelled) {
@@ -93,16 +112,53 @@ function usePostDetail(postId) {
 
   }
 
+  // 원본 commentSubmitBtn else 분기(post_detail.js:372-380) — 새 댓글을 배열 맨 앞에 추가(prepend 대응)
+  async function addComment(commentContent) {
+    const result = await createComment(postId, { commentContent });
+    setComments((prev) => [result.data, ...prev]); //기존 댓글 배열에 앞에 생성 -> 최신순으로 보이도록
+    setCommentCount(result.data.commentCount);
+  }
+
+  // 원본 commentSubmitBtn if(isEditing) 분기(post_detail.js:352-365) — 수정 대상 댓글만 map으로 교체
+  async function updateComment(commentContent) {
+    const result = await editComment(postId, editingComment.commentId, { commentContent });
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.commentId === editingComment.commentId
+          ? { ...comment, commentContent: result.data.commentContent }
+          : comment
+      ) //이전 댓글 목록에서 editingComment의 Id와 일치하는 댓글의 내용만 수정
+    );
+
+    setEditingComment(null); //수정끝나고 나면 다시 null로 
+  }
+
+  // 원본 commentDeleteConfirmBtn 핸들러(post_detail.js:326-341) — 삭제 대상만 filter로 제외
+  async function removeComment() {
+    const result = await deleteComment(postId, deleteTargetCommentId);
+    setComments((prev) => prev.filter((comment) => comment.commentId !== deleteTargetCommentId)); //deleteTargetCommentId와 같은 댓글 Id는 삭제
+    setCommentCount(result.data.commentCount);
+    setDeleteTargetCommentId(null);
+  }
+
   return {
     post,
     isLiked,
     likeCount,
     commentCount,
+    comments,
+    editingComment,
+    setEditingComment,
+    deleteTargetCommentId,
+    setDeleteTargetCommentId,
     isLoading,
     error,
     deletePost: () => deletePost(postId),
     toggleLike,
     reportPost: () => reportPost(postId),
+    createComment: addComment,
+    editComment: updateComment,
+    deleteComment: removeComment,
   };
 }
 
