@@ -1,0 +1,112 @@
+/* frontend/Page/Board/board.css:315-442 중 카드 관련 블록만 포팅(.post-list, 상태 메시지는 PostList 소관) */
+.post-card {
+  background-color: var(--card-bg);
+  border-radius: 16px;
+  padding: 18px 20px;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(45, 42, 38, 0.06);
+  border-left: 4px solid var(--primary);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(45, 42, 38, 0.12);
+}
+
+.post-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.post-img {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  background-color: var(--border);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.post-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.post-title {
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 130%;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mint);
+}
+
+.stat-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.post-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--bg);
+}
+
+.post-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.author-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: var(--border);
+  flex-shrink: 0;
+}
+
+.author-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.author-name {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+.meta-date {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--text-sub);
+}
