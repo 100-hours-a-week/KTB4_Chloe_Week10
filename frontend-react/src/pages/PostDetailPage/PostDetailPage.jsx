@@ -9,8 +9,25 @@ import PostDetailMain from './PostDetailMain';
 function PostDetailPage() {
   const { postId } = useParams();
   const navigate = useNavigate();
-  const { post, isLiked, likeCount, isLoading, error, deletePost, toggleLike, reportPost } =
-    usePostDetail(postId);
+  const {
+    post,
+    isLiked,
+    likeCount,
+    commentCount,
+    comments,
+    editingComment,
+    setEditingComment,
+    deleteTargetCommentId,
+    setDeleteTargetCommentId,
+    isLoading,
+    error,
+    deletePost,
+    toggleLike,
+    reportPost,
+    createComment,
+    editComment,
+    deleteComment,
+  } = usePostDetail(postId);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   // 원본 postDeleteConfirmBtn 핸들러(post_detail.js:186-193) — 성공 시 목록으로 이동
@@ -36,6 +53,36 @@ function PostDetailPage() {
     }
   }
 
+  // 원본 commentSubmitBtn 핸들러(post_detail.js:345-389) — editingComment 유무로 수정/등록 분기
+  async function handleSubmitComment(content) {
+    if (editingComment) {
+      await editComment(content);
+    } else {
+      await createComment(content);
+    }
+  }
+
+  // 원본 mountComments 클릭 위임의 editBtn 분기(post_detail.js:267-277) 대응 — CommentItem이 직접 호출
+  function handleEditComment(comment) {
+    setEditingComment(comment);
+  }
+
+  // 원본 mountComments 클릭 위임의 deleteBtn 분기(post_detail.js:280-285) 대응
+  function handleRequestDeleteComment(commentId) {
+    setDeleteTargetCommentId(commentId);
+  }
+
+  // 원본 commentDeleteConfirmBtn 핸들러(post_detail.js:326-341)
+  async function handleConfirmDeleteComment() {
+    try {
+      await deleteComment();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeleteTargetCommentId(null);
+    }
+  }
+
   if (error) {
     return <p>게시글 정보를 불러오지 못했습니다.</p>;
   }
@@ -56,6 +103,16 @@ function PostDetailPage() {
       deleteModalOpen={deleteModalOpen}
       onConfirmDelete={handleConfirmDelete} //모달 창의 삭제 확인 버튼
       onCancelDelete={() => setDeleteModalOpen(false)} //모달 창의 삭제 취소 버튼
+      comments={comments}
+      commentCount={commentCount}
+      editingComment={editingComment}
+      onSubmitComment={handleSubmitComment}
+      onCancelEditComment={() => setEditingComment(null)}
+      onEditComment={handleEditComment}
+      onRequestDeleteComment={handleRequestDeleteComment}
+      commentDeleteModalOpen={deleteTargetCommentId !== null}
+      onConfirmDeleteComment={handleConfirmDeleteComment}
+      onCancelDeleteComment={() => setDeleteTargetCommentId(null)}
     />
   );
 }

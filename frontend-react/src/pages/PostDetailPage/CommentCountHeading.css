@@ -1,0 +1,10 @@
+/* frontend/Page/Post_detail/post_detail.css:542-550 */
+.comment-count-heading {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.comment-count-heading span {
+  color: var(--primary);
+}
