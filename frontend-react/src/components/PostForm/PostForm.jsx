@@ -16,7 +16,7 @@ function PostForm({ mode, initialValues, onSubmit, submitting = false }) {
   const [values, setValues] = useState({
     title: initialValues?.title ?? '',
     content: initialValues?.content ?? '',
-    image: null, // TODO(3단계 후속): ImageUploader 구현 시 실제 File 객체 연결
+    image: null, // 새로 선택한 File. edit 모드에서 안 바꾸면 null 유지 → 기존 이미지는 initialValues.postImage로만 표시
   });
 
   const { heading, submitLabel } = MODE_TEXT[mode];
@@ -57,12 +57,18 @@ function PostForm({ mode, initialValues, onSubmit, submitting = false }) {
           onChange={(v) => setValues((prev) => ({ ...prev, content: v }))}
         />
 
-        <ImageUploader />
+        <ImageUploader
+          file={values.image}
+          existingFileName={initialValues?.postImage}
+          //image에 file이 들어오면 상태 변경하고 아니면 그냥 null로 
+          onFileChange={(file) => setValues((prev) => ({ ...prev, image: file }))}
+        />
 
         <button
           type="submit"
           className={`btn-submit${canSubmit ? ' active' : ''}`}
           disabled={!canSubmit || submitting}
+          // canSubmit이 false 거나, submitting이 true 면 버튼 비활성화
         >
           {submitLabel}
         </button>
