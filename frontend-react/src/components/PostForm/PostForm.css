@@ -1,0 +1,56 @@
+/* frontend/Page/Post_write/post_write.css:159-178, 305-333 */
+.write-section {
+  width: 100%;
+  max-width: 520px;
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(45, 42, 38, 0.08);
+  padding: 36px 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.write-title {
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 130%;
+  text-align: center;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.write-section form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* .btn-submit는 SignupForm.css에도 같은 클래스명이 있음(전역 CSS라 충돌 위험) —
+   .write-section 안에서만 적용되도록 선택자를 좁혀서 분리 */
+.write-section .btn-submit {
+  width: 100%;
+  padding: 14px;
+  background-color: #F5B8AE;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: not-allowed;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 4px;
+}
+
+.write-section .btn-submit.active {
+  background-color: var(--primary);
+  cursor: pointer;
+}
+
+.write-section .btn-submit.active:hover {
+  background-color: var(--primary-hover);
+}
+
+.write-section .btn-submit.active:active {
+  transform: scale(0.98);
+}

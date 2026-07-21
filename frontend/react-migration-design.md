@@ -320,6 +320,8 @@ PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 
 | 필드별 `isValidEmail`/`isValidPassword`/... 불리언을 따로 두고 검증할 때마다 수동으로 `activeXButton()` 호출 | 검증 로직과 "버튼 활성화 여부 재계산"을 매 핸들러마다 나란히 호출해야 함 — 하나라도 호출을 빠뜨리면 버튼 상태가 실제 값과 불일치 | 폼 전체를 하나의 `values`+`errors` 객체로 관리하고, 제출 버튼의 `disabled`는 `Object.values(errors).some(Boolean)`처럼 **파생 계산값**으로 처리 → 별도 동기화 호출이 필요 없음 |
 | `localStorage.getItem('accessToken')`을 `request.js`뿐 아니라 여러 페이지가 직접 읽음, `Profile_edit.js`는 아예 `request.js`를 우회해 `fetch`를 직접 호출(공통 에러 처리 미적용) | 인증 상태의 "원천"이 여러 곳에 흩어져 있어 정책(토큰 만료 처리 등) 변경 시 모든 참조 지점을 찾아 고쳐야 함 | `AuthContext` 하나가 accessToken을 소유하고 API 레이어가 이를 참조 → 모든 요청이 동일한 인증/에러 처리 경로를 강제로 통과 |
 | 페이지 간 상태 전파가 전역 스토어 없이 URL 쿼리(`?postId=`) + 페이지 재진입 시 서버 재조회로만 이루어짐 | SPA 전환 시 "재조회 시점"을 명시적으로 관리해줘야 함(그냥 두면 안 됨) | `usePostDetail(postId)` 같은 훅이 `postId`(React Router 파라미터)가 바뀔 때마다 재조회하도록 `useEffect` 의존성 배열로 명시적으로 관리 — 기존과 같은 "URL 기반 재조회" 계약을 유지하면서도 그 시점을 코드로 드러냄 |
+| `titleCount.textContent`를 `input` 이벤트 리스너 안에서만 갱신(`post_write.js`/`post_edit.js`) | `defaultEditPage()`가 `titleInput.value`를 직접 채워도 `input` 이벤트가 안 터져 카운터가 갱신 안 됨(프리필 시 "0/26"으로 고정) | `ValidatedField`가 매 렌더마다 `value.length`로 파생 계산 → 이벤트 발생 여부와 무관하게 항상 정확한 값 표시 |
+| `postContentInput.textContent = ...`로 `<textarea>`를 채움(`post_edit.js:77`) | `.value`가 아닌 `.textContent` 사용은 비표준적(우연히 동작) | `value` prop 하나로 제어되는 controlled component라 이 문제 자체가 성립하지 않음 |
 
 ---
 

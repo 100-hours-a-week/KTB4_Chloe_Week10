@@ -1,0 +1,19 @@
+/* frontend/Page/Post_write/post_write.css:266-303 중 지금 렌더링하는 부분(.file-input-wrap, .file-name)만 포팅.
+   .btn-file/#postImage(실제 input)는 파일 선택 로직 구현 시 추가 예정 */
+.file-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background-color: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+}
+
+.file-name {
+  font-size: 13px;
+  color: var(--text-sub);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
