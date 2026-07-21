@@ -16,6 +16,8 @@
   --text: #2d2a26;
   --text-sub: #8c8681;
   --border: #f0e0dc;
+  --danger: #d9453b;
+  --danger-light: #fde4e1;
 }
 
 body {

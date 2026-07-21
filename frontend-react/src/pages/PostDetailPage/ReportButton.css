@@ -1,0 +1,16 @@
+/* frontend/Page/Post_detail/post_detail.css:451-465 */
+.post-detail .btn-report-inline {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  color: var(--text-sub);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.post-detail .btn-report-inline:hover {
+  background-color: var(--danger-light);
+  color: var(--danger);
+}

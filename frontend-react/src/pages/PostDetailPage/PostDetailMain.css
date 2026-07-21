@@ -1,0 +1,12 @@
+/* frontend/Page/Post_detail/post_detail.css:250-260 */
+.post-detail {
+  width: 100%;
+  max-width: 640px;
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(45, 42, 38, 0.06);
+  padding: 32px 36px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

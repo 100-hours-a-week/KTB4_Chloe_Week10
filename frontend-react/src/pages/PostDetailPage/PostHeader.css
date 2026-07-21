@@ -1,0 +1,65 @@
+/* frontend/Page/Post_detail/post_detail.css:337-403
+   .post-title/.author-avatar/.author-avatar-img/.author-name는 PostCard.css에도 같은 클래스명이
+   다른 값으로 있음(전역 CSS라 충돌 위험) — .post-detail 안으로 선택자 범위 좁힘 */
+.post-detail .post-title {
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 130%;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+
+.post-detail .post-author-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.post-detail .author-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--border);
+  flex-shrink: 0;
+}
+
+.post-detail .author-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.post-detail .author-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.post-detail .post-date {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+.post-detail .post-image-wrap {
+  width: 100%;
+}
+
+.post-detail .post-image-placeholder {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  border-radius: 10px;
+  object-fit: contain;
+  background-color: var(--border);
+  display: block;
+}
+
+.post-detail .post-body p {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 165%;
+  color: var(--text);
+}

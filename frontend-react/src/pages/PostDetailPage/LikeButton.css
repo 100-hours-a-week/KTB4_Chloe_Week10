@@ -1,0 +1,37 @@
+/* frontend/Page/Post_detail/post_detail.css:414-449. 원본은 #likeCount(id)였던 걸 .like-count 클래스로 변경 */
+.post-detail .btn-like-heart {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.post-detail .icon-heart {
+  width: 23px;
+  height: 23px;
+  color: var(--text-sub);
+  transition: color 0.2s, transform 0.15s;
+}
+
+.post-detail .btn-like-heart .like-count {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-sub);
+  transition: color 0.2s;
+}
+
+.post-detail .btn-like-heart:hover .icon-heart {
+  transform: scale(1.08);
+}
+
+.post-detail .btn-like-heart.liked .icon-heart {
+  color: var(--primary);
+  fill: var(--primary);
+}
+
+.post-detail .btn-like-heart.liked .like-count {
+  color: var(--primary);
+}

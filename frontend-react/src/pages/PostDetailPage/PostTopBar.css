@@ -1,0 +1,70 @@
+/* frontend/Page/Post_detail/post_detail.css:265-332
+   .btn-action/.post-title 등은 PostCard.css에도 같은 클래스명이 있어(전역 CSS) .post-detail 안으로 선택자 범위 좁힘 */
+.post-detail .post-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.post-detail .btn-back-inline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--text-sub);
+  cursor: pointer;
+  padding: 0;
+}
+
+.post-detail .btn-back-inline:hover {
+  color: var(--primary);
+}
+
+.post-detail .post-top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-detail .view-count-inline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mint);
+  margin-right: 4px;
+}
+
+.post-detail .icon-eye {
+  width: 15px;
+  height: 15px;
+}
+
+.post-detail .btn-action {
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.post-detail .btn-action:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+  color: var(--primary-hover);
+}
+
+.post-detail .btn-delete-post:hover {
+  background-color: var(--danger-light);
+  border-color: var(--danger-light);
+  color: var(--danger);
+}

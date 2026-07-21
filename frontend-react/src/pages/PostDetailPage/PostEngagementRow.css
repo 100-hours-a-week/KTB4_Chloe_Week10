@@ -1,0 +1,6 @@
+/* frontend/Page/Post_detail/post_detail.css:408-412 */
+.post-detail .post-like-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
