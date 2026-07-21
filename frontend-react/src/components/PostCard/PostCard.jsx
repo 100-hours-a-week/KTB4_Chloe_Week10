@@ -7,6 +7,7 @@ import './PostCard.css';
 // 원본: frontend/Page/Board/board.js:131-211 (renderPostList) — 썸네일/제목/통계/작성자 마크업 그대로 대응.
 // 게시글 상세로의 이동은 원본이 post_detail.html?postId=로 하드 링크하던 것을 라우트 경로로 변환(/posts/:postId).
 function PostCard({ post }) {
+  
   return (
     <li className="post-card">
       <Link to={`/posts/${post.post_id}`}>

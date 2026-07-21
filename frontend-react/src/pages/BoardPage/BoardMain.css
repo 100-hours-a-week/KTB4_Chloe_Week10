@@ -1,0 +1,44 @@
+/* frontend/Page/Board/board.css:268-310 */
+.top-area {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding: 20px 24px;
+  background-color: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(45, 42, 38, 0.06);
+}
+
+.greeting {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 140%;
+  color: var(--text-sub);
+}
+
+.greeting-bold {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.btn-write {
+  flex-shrink: 0;
+  padding: 11px 22px;
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: inline-block;
+}
+
+.btn-write:hover {
+  background-color: var(--primary-hover);
+}

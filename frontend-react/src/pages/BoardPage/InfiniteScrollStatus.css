@@ -1,0 +1,9 @@
+/* frontend/Page/Board/board.css:447-456 (#postLoading, #postEmpty, #postError 공용 스타일) */
+.scroll-status {
+  width: 100%;
+  max-width: 640px;
+  text-align: center;
+  padding: 40px 0;
+  font-size: 14px;
+  color: var(--text-sub);
+}

@@ -1,0 +1,9 @@
+/* frontend/Page/Board/board.css:315-322 */
+.post-list {
+  width: 100%;
+  max-width: 640px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
