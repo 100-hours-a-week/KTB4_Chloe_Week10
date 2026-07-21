@@ -43,7 +43,9 @@ function usePostDetail(postId) {
   useEffect(() => {
     let cancelled = false;
 
-    //여기서는 async 방식 사용 
+    //여기서는 async 방식 사용 - 가독성 측면에서 
+    //then 방식을 사용하게 되면 try-catch-finally가 아니라 then,catch,finally가 분리된 함수로 작성됨.
+    // 에러처리가 딱히 없다면 then을 쓰는 패턴으로 -> PostEditPage
     //postEditPage에서 postId 변경될 때, 응답 데이터 덮어쓰는 문제 해결하는 패턴과 동일 
     async function load() {
       setIsLoading(true);
@@ -88,7 +90,7 @@ function usePostDetail(postId) {
     // 이전 좋아요 상태의 반대값으로 변경
     setIsLiked((prev) => !prev);
     setLikeCount(result.data.like_count);
-    
+
   }
 
   return {
