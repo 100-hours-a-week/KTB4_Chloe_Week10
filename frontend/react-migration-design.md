@@ -373,3 +373,26 @@ PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 
 - **구조**: 아래 두 `Header`는 서로 다른 컴포넌트 인스턴스이며, 사이드바 CSS(`display:none`)와 `collapsed-topbar`의 `hidden` 속성으로 항상 하나만 화면에 보이도록 상호 배타적으로 토글됨
   - `Sidebar` 내부의 `Header` — 펼침 상태, `variant="sidebar"` (드롭다운 위로 열림)
   - `collapsed-topbar` 안의 `Header` — 접힘 상태, `variant="topbar"` (드롭다운 아래로 열림)
+
+### ④ Login/Signup 성공 후 이동 방식 — 응답의 `link`로 하드 리다이렉트(HATEOAS) → 고정 라우트로 이동
+
+| 구분 | 내용 |
+|---|---|
+| 원본 동작 | 로그인/회원가입 성공 시 서버 응답의 `response.data.link`(정적 HTML 경로)로 `window.location.href` 하드 리다이렉트 |
+| 문제 | React Router의 `navigate()`는 서버가 내려주는 HTML 파일 경로를 그대로 라우트로 쓸 수 없음 |
+| 변경 | `link`을 파싱하지 않고, 로그인 성공 시 `/board`로, 회원가입 성공 시 `/login`으로 고정 라우트 이동(`LoginPage`/`SignupPage`) |
+
+### ⑤ `SubmitButton` — 별도 컴포넌트로 분리하지 않음
+
+| 구분 | 내용 |
+|---|---|
+| 설계 | 1-1/1-2절 컴포넌트 트리에는 `SubmitButton`이 `LoginForm`/`SignupForm`의 자식 컴포넌트로 명시됨 |
+| 변경 | 상태·분기 로직이 없는 단순 `<button>`이라 별도 컴포넌트로 분리하지 않고 `LoginForm`/`SignupForm` 내부에 인라인으로 구현 |
+
+### ⑥ `SignupPage` 자체 상태 — "없음" → `serverErrors` 보유
+
+| 구분 | 내용 |
+|---|---|
+| 설계 | 2절 Login/Signup 표(208행)는 `SignupPage` 자체 상태를 "없음"으로 명시 |
+| 문제 | 같은 표에서 `SignupPage`의 역할로 "409 에러 필드 매핑"을 명시하는데, 그 결과를 하위 `SignupForm`에 prop으로 내려주려면 어딘가 값을 들고 있어야 함 |
+| 변경 | `SignupPage`가 `serverErrors` state를 보유해 `SignupForm`에 prop으로 전달. `LoginPage`는 로그인 실패 시 필드별 에러 매핑이 없어(원본도 `console.error`만 함) 동일한 상태가 필요 없음 — 이 비대칭은 의도된 것 |
