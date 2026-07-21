@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import ValidatedField from '../ValidatedField/ValidatedField';
+import ProfileImageUploader from '../ProfileImageUploader/ProfileImageUploader';
 import { isValidEmail, isValidPassword, getNicknameError } from '../../utils/validators';
-import request from '../../api/request';
 import './SignupForm.css';
 
 const PASSWORD_STRENGTH_MSG =
   '비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 포함해야 합니다.';
 const PASSWORD_MISMATCH_MSG = '비밀번호가 일치하지 않습니다.';
+const PROFILE_REQUIRED_MSG = '프로필 사진을 추가해주세요.';
 
 // 원본: 비밀번호 확인 검증. 두 blur 핸들러가 강도체크→일치체크를 순차 실행하며 뒤 블록이 앞 블록을
 // 무조건 덮어써서, 약한 비밀번호를 같은 값으로 두 번 입력하면 "유효"로 잘못 표시되는 원본 버그가 있었음.
@@ -19,15 +19,28 @@ function getConfirmPasswordError(confirmPassword, password) {
   return '';
 }
 
-async function signUp(formData) {
-  return request('/users/signup', 'POST', formData);
-}
-
-function SignupForm() {
+// API 호출/이동/409 에러 매핑은 SignupPage 소관 — 이 컴포넌트는 입력값·검증만 담당하고
+// onSubmit prop으로 위임한다. serverErrors는 SignupPage가 409 응답을 받아 내려주는 필드별 에러.
+function SignupForm({ onSubmit, serverErrors }) {
   const [values, setValues] = useState({ email: '', password: '', confirmPassword: '', nickname: '' });
-  const [errors, setErrors] = useState({ email: '', password: '', confirmPassword: '', nickname: '', profile: '' });
+  // 원본: Signup.js:37 setProfileInvalid() — 페이지 진입 즉시 프로필 사진 필드를 에러 상태로 미리 세팅.
+  // 필수 항목인지 모르고 다른 필드만 채웠을 때 제출 버튼이 계속 비활성 상태인 이유를 알 수 있도록 함.
+  const [errors, setErrors] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    nickname: '',
+    profile: PROFILE_REQUIRED_MSG,
+  });
   const [profileFile, setProfileFile] = useState(null);
-  const navigate = useNavigate();
+
+  // serverErrors(409 응답)를 렌더 중에 errors로 반영 — useEffect 대신 "이전 렌더와 비교해
+  // 달라졌을 때만 반영" 패턴 사용(React 공식 문서의 setState-during-render 패턴)
+  const [prevServerErrors, setPrevServerErrors] = useState(serverErrors);
+  if (serverErrors && serverErrors !== prevServerErrors) {
+    setPrevServerErrors(serverErrors);
+    setErrors((prev) => ({ ...prev, ...serverErrors }));
+  }
 
   // 메모리 해제 누락 방지 위해 state로 안 두고 파생 계산(설계 문서 3절 권장 패턴)
   // profileFile 바뀔 때만 URL 다시 생성 -> useMemo로 참조안정화
@@ -59,7 +72,7 @@ function SignupForm() {
     const file = e.target.files[0];
     if (!file) {
       setProfileFile(null);
-      setErrors((prev) => ({ ...prev, profile: '프로필 사진을 추가해주세요.' }));
+      setErrors((prev) => ({ ...prev, profile: PROFILE_REQUIRED_MSG }));
       return;
     }
     setProfileFile(file);
@@ -97,50 +110,19 @@ function SignupForm() {
     setErrors((prev) => ({ ...prev, nickname: getNicknameError(values.nickname) }));
   }
 
-  async function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault();
     if (!canSubmit) return;
-
-    const formData = new FormData();
-    formData.append('email', values.email);
-    formData.append('password', values.password);
-    formData.append('nickname', values.nickname);
-    formData.append('profile_image', profileFile);
-
-    try {
-      // TODO(0단계 후속): useAuth(AuthContext) 도입 시 회원가입 직후 자동 로그인 처리 여부 결정
-      await signUp(formData);
-      // 원본은 result.data.link로 하드 리다이렉트했으나, SPA 전환 후엔 로그인 라우트로 고정 이동
-      navigate('/login');
-    } catch (error) {
-      // 원본: 409 시 field로 이메일/닉네임 중복 에러만 매핑, 그 외 상태코드는 콘솔 로그만
-      if (error.status === 409) {
-        if (error.field === 'email') {
-          setErrors((prev) => ({ ...prev, email: '중복된 이메일 입니다.' }));
-        }
-        if (error.field === 'nickname') {
-          setErrors((prev) => ({ ...prev, nickname: '중복된 닉네임 입니다.' }));
-        }
-      } else {
-        console.error(error);
-      }
-    }
+    onSubmit({ email: values.email, password: values.password, nickname: values.nickname, profileFile });
   }
 
   return (
     <form className="form-area" onSubmit={handleSubmit}>
-      <div className="profile-area">
-        <p className="form-label">프로필 사진</p>
-        <p className={`helper-text${errors.profile ? ' error' : ''}`}>{errors.profile}</p>
-        <label className="profile-upload">
-          {profilePreviewUrl ? (
-            <img className="profile-preview" src={profilePreviewUrl} alt="프로필 사진" />
-          ) : (
-            <span className="profile-plus">+</span>
-          )}
-          <input type="file" accept="image/*" hidden onChange={handleProfileChange} />
-        </label>
-      </div>
+      <ProfileImageUploader
+        previewUrl={profilePreviewUrl}
+        onFileChange={handleProfileChange}
+        error={errors.profile}
+      />
 
       <ValidatedField
         id="email"

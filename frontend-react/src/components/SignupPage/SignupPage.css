@@ -1,0 +1,103 @@
+/* frontend/Page/Signup/signup.css의 헤더/카드 타이틀/로그인 링크 블록(form-area, profile-*, btn-submit 제외) 포팅 */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--card-bg);
+  box-shadow: 0 2px 12px rgba(45, 42, 38, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 24px;
+}
+
+.btn-back {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border: none;
+  background: var(--bg);
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  line-height: 1;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-back:hover {
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.site-title {
+  font-family: 'Sandoll GogoRound', 'Pretendard', sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  position: relative;
+  padding-bottom: 6px;
+}
+
+.site-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 3px;
+  background-color: var(--primary);
+  border-radius: 2px;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  padding: 50px 20px 100px;
+}
+
+.signup-section {
+  width: 100%;
+  max-width: 360px;
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(45, 42, 38, 0.08);
+  padding: 36px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.signup-title {
+  font-weight: 700;
+  font-size: 26px;
+  text-align: center;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.login-link-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.login-link {
+  font-size: 13px;
+  color: var(--text-sub);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.login-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}

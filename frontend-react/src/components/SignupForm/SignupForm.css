@@ -1,52 +1,8 @@
-/* frontend/Page/Signup/signup.css의 .form-area/.profile-*/.btn-submit 블록만 포팅 */
+/* frontend/Page/Signup/signup.css의 .form-area, .btn-submit 블록만 포팅 (.profile-*는 ProfileImageUploader 소관) */
 .form-area {
   display: flex;
   flex-direction: column;
   gap: 14px;
-}
-
-.profile-area {
-  text-align: center;
-  margin-bottom: 8px;
-}
-
-.profile-area .form-label {
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--text);
-}
-
-.profile-upload {
-  width: 110px;
-  height: 110px;
-  background-color: var(--primary-light);
-  border: 2px dashed #F5C4BB;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  margin: 12px auto 4px;
-  overflow: hidden;
-  transition: border-color 0.2s, background-color 0.2s;
-}
-
-.profile-upload:hover {
-  border-color: var(--primary);
-  background-color: #FFDCD5;
-}
-
-.profile-plus {
-  font-size: 32px;
-  color: var(--primary);
-  font-weight: 300;
-}
-
-.profile-preview {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  object-fit: cover;
 }
 
 .btn-submit {
