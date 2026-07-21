@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import AppLayout from './components/AppLayout/AppLayout';
-import LoginPage from './components/LoginPage/LoginPage';
-import SignupPage from './components/SignupPage/SignupPage';
+import AppLayout from './components/layout/AppLayout/AppLayout';
+import LoginPage from './pages/LoginPage/LoginPage';
+import SignupPage from './pages/SignupPage/SignupPage';
 
 // TODO: 2~5단계에서 실제 페이지 컴포넌트로 교체.
 // 지금은 AppLayout의 <Outlet /> 동작(페이지 전환 시 Sidebar 접힘 상태 유지)을

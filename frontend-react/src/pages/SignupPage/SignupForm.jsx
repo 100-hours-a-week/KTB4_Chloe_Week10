@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import ValidatedField from '../ValidatedField/ValidatedField';
-import ProfileImageUploader from '../ProfileImageUploader/ProfileImageUploader';
+import ValidatedField from '../../components/ValidatedField/ValidatedField';
+import ProfileImageUploader from '../../components/ProfileImageUploader/ProfileImageUploader';
 import { isValidEmail, isValidPassword, getNicknameError } from '../../utils/validators';
 import './SignupForm.css';
 

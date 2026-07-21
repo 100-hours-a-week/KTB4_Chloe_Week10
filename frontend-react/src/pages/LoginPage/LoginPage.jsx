@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import LoginForm from '../LoginForm/LoginForm';
+import LoginForm from './LoginForm';
 import request from '../../api/request';
 import './LoginPage.css';
 

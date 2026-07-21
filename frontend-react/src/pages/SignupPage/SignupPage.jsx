@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import SignupForm from '../SignupForm/SignupForm';
+import SignupForm from './SignupForm';
 import request from '../../api/request';
 import './SignupPage.css';
 

@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { ToastContext } from './ToastContext.js';
-import Toast from './Toast';
+import Toast from '../../components/Toast/Toast';
 
 const DISPLAY_DURATION_MS = 2000; // profile_edit.js / password_edit.js의 showToast()와 동일
 

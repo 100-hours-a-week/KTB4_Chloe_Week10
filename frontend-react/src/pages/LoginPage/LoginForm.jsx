@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import ValidatedField from '../ValidatedField/ValidatedField';
+import ValidatedField from '../../components/ValidatedField/ValidatedField';
 import { isValidEmail, isValidPassword } from '../../utils/validators';
 import './LoginForm.css';
 
