@@ -19,19 +19,33 @@ function PostEditPage() {
   const navigate = useNavigate();
 
   const [initialValues, setInitialValues] = useState(null);
+  const [error, setError] = useState(false);
 
-  // initialValues가 준비되기 전엔 PostForm을 렌더링하지 않음 
+  // initialValues가 준비되기 전엔 PostForm을 렌더링하지 않음
   // PostForm의 useState 초기값은 첫 렌더에서 한 번만 평가되므로, 먼저 그려버리면 titleCount가 "0/26"으로 고정되는 원본 버그가 재현됨
   useEffect(() => {
     //cancelled : 이 effect가 이미 정리됐는지 표시하는 로컬 변수
     let cancelled = false;
 
-    // getPostForEdit에 대한 요청이 끝나면 then안에 있는 함수 실행
-    // async 방식은 useEfect의 함수 안에서 async 함수를 다시 정의해서 호출하면 됨
-    getPostForEdit(postId).then((result) => {
-      // cancelled 가드가 없으면 이전에 요청한 응답에 대한 데이터로 덮어씌어질 수 있다.
-      if (!cancelled) setInitialValues(result.data);
-    });
+    // async 방식은 useEfect의 함수 안에서 async 함수를 다시 정의해서 호출하면 됨(usePostDetail의 load()와 동일 패턴)
+
+    // request.js가 상태코드별 콘솔 로그/알림은 대신 해주지만, throw는 그대로 올라오기 때문에
+    // 여기서 catch를 안 하면 unhandled rejection이 되고 initialValues도 계속 null이라
+    // "불러오는 중입니다" 화면에서 영원히 멈춤 → error state로 받아서 처리
+    async function load() {
+      try {
+        const result = await getPostForEdit(postId);
+        // cancelled 가드가 없으면 이전에 요청한 응답에 대한 데이터로 덮어씌어질 수 있다.
+        if (!cancelled) setInitialValues(result.data);
+      } catch (err) {
+        if (!cancelled) {
+          console.error(err);
+          setError(true);
+        }
+      }
+    }
+
+    load();
 
     //cleanUp 함수
     return () => {
@@ -56,6 +70,10 @@ function PostEditPage() {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  if (error) {
+    return <p>게시글 정보를 불러오지 못했습니다.</p>;
   }
 
   if (!initialValues) {
