@@ -8,21 +8,32 @@ import { AuthContext } from './AuthContext.js';
 // 여기서도 login/logout 시 localStorage를 함께 갱신해 두 소스가 항상 같은 값을 가리키도록 동기화한다.
 export function AuthProvider({ children }) {
   const [accessToken, setAccessToken] = useState(() => localStorage.getItem('accessToken'));
+  // accessToken과 동일한 이유로 localStorage와 동기화 — 새로고침해도 Header의 프로필 사진이 유지되어야 함
+  const [profileImage, setProfileImage] = useState(() => localStorage.getItem('profileImage'));
 
-  const login = useCallback((token) => {
+  const login = useCallback((token, profileImage) => {
     localStorage.setItem('accessToken', token);
     setAccessToken(token);
+
+    if (profileImage) {
+      localStorage.setItem('profileImage', profileImage);
+    } else {
+      localStorage.removeItem('profileImage');
+    }
+    setProfileImage(profileImage ?? null);
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('profileImage');
     setAccessToken(null);
+    setProfileImage(null);
   }, []);
 
   const isAuthenticated = accessToken !== null; //토큰이 있으면 로그인 상태 & 토큰 없으면 로그아웃 상태
 
   return (
-    <AuthContext.Provider value={{ accessToken, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ accessToken, profileImage, isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
