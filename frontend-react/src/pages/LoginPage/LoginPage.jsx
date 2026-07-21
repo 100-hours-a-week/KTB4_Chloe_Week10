@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import LoginForm from './LoginForm';
 import request from '../../api/request';
+import { useAuth } from '../../context/AuthContext/useAuth';
 import './LoginPage.css';
 
 // 원본: Page/Login/Login.js — 로그인 API 호출 + 이동 담당(입력/검증은 LoginForm 소관)
@@ -10,11 +11,15 @@ async function login(credentials) {
 
 function LoginPage() {
   const navigate = useNavigate();
+  // login이라는 속성을 setAuthToken으로 사용
+  // login인은 AuthProvider에서 토큰 저장하는 함수 (실제로 localstorage에 저장 및 상태 저장)
+  const { login: setAuthToken } = useAuth();
 
   async function handleLogin(credentials) {
     try {
-      await login(credentials);
-      // TODO(0단계 후속): useAuth(AuthContext) 도입 시 accessToken 저장을 여기서 처리
+      const response = await login(credentials);
+      // 원본: Login.js — response.data.jwtToken.accessToken 경로로 한 겹 더 감싸져 있음
+      setAuthToken(response.data.jwtToken.accessToken);
       // 원본은 response.data.link로 하드 리다이렉트했으나, SPA 전환 후엔 board 라우트로 고정 이동
       navigate('/board');
     } catch (error) {
