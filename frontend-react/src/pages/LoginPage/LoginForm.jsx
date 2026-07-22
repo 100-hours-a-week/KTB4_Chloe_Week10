@@ -3,19 +3,14 @@ import ValidatedField from '../../components/ValidatedField/ValidatedField';
 import { isValidEmail, isValidPassword } from '../../utils/validators';
 import './LoginForm.css';
 
-// 원본: Page/Login/Login.js — email/password 둘 다 'input' 이벤트에서 실시간 검증(blur 아님)
-// API 호출/이동은 LoginPage 소관 — 이 컴포넌트는 입력값·검증만 담당하고 onSubmit prop으로 위임한다.
 function LoginForm({ onSubmit }) {
   const [values, setValues] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({ email: '', password: '' });
 
-  // 버튼 활성화 여부는 별도 isValid* state로 추적하지 않고 매 렌더마다 파생 계산(설계 문서 5절)
   const canSubmit = isValidEmail(values.email) && isValidPassword(values.password);
 
   function handleEmailInput(value) {
-    // 값 저장
     setValues((prev) => ({ ...prev, email: value }));
-    // 에러 계산
     setErrors((prev) => ({
       ...prev,
       email: isValidEmail(value) ? '' : '유효한 이메일 주소를 입력해주세요.',
@@ -33,8 +28,6 @@ function LoginForm({ onSubmit }) {
   }
 
   function handleSubmit(e) {
-    // 브라우저에서는 <form>을 제출하면 기본적으로 페이지를 다시 불러오거나 지정된 주소로 이동하려고 한다.
-    // 근데 지금은 API 호출을 기다렸다가 이동해야하기 때문에, 기본 제출 동작을 막음.
     e.preventDefault();
     if (!canSubmit) return;
     onSubmit({ email: values.email, password: values.password });
@@ -50,7 +43,7 @@ function LoginForm({ onSubmit }) {
         autoComplete="email"
         value={values.email}
         error={errors.email}
-        onChange={handleEmailInput} //값 저장 과 동시에 에러계산도 같이
+        onChange={handleEmailInput}
       />
       <ValidatedField
         id="password"

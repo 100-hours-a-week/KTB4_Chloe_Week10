@@ -5,8 +5,6 @@ import CommentSection from './Comment/CommentSection';
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
 import './PostDetailMain.css';
 
-// react-migration-design.md 1-4절 트리 그대로: PostDetailPage가 훅/네비게이션을 소유하고,
-// 이 컴포넌트는 그 값을 받아 하위로 분배만 하는 순수 조립 컴포넌트(자체 상태 없음).
 function PostDetailMain({
   post,
   isLiked,

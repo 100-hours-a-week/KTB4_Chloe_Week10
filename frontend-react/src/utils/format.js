@@ -1,7 +1,4 @@
-// frontend/Page/Board/board.js:95-113, frontend/Page/Post_detail/post_detail.js:91-109에
-// 완전히 동일하게 중복되어 있던 두 함수를 그대로 옮김
 
-// 1,000 이상이면 1k, 10,000 이상이면 10k, 100,000 이상이면 100k 식으로 표기
 export function formatCount(count) {
   if (count >= 1000) {
     return `${parseFloat((count / 1000).toFixed(1))}k`;
@@ -9,7 +6,6 @@ export function formatCount(count) {
   return `${count}`;
 }
 
-// yyyy-mm-dd hh:mm:ss 형식으로 변환
 export function formatDateTime(dateInput) {
   const date = new Date(dateInput);
 

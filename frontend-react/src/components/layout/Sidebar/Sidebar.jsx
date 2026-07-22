@@ -2,8 +2,6 @@ import { NavLink } from 'react-router-dom';
 import Header from '../Header/Header';
 import './Sidebar.css';
 
-// collapsed 상태는 AppLayout이 소유한다(0-1절 참고).
-// collapsed-topbar가 content-area 쪽에 위치해야 해서(원본 board.html DOM 구조) 상위로 끌어올렸다.
 function Sidebar({ collapsed, onCollapse }) {
   return (
     <aside className={`sidebar${collapsed ? ' collapsed' : ''}`}>

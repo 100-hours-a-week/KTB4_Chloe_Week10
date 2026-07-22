@@ -1,7 +1,3 @@
-// 원본: frontend/Page/Board/board.js:117-121 (ICONS) — 좋아요/댓글/조회수 아이콘.
-// board.js에서 이미 like/comment/view 3개가 카드 하나당 1번씩 재사용되고(게시글 수만큼 반복),
-// Post_detail 페이지(post_detail.html)에서도 like/view 아이콘이 동일하게 재사용되어 컴포넌트로 분리.
-// className 등 남은 props는 <svg>에 그대로 전달 — PostCard가 className="stat-icon"으로 크기를 제어.
 
 export function LikeIcon(props) {
   return (

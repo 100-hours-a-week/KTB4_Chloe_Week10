@@ -1,4 +1,3 @@
-// frontend/API/request.js 그대로 포팅 (BASE_URL 하드코딩, NO_AUTH_PATHS 정책 동일)
 const BASE_URL = 'http://localhost:8080';
 
 const NO_AUTH_PATHS = ['/auth/login', '/users/signup'];

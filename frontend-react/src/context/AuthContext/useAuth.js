@@ -1,8 +1,6 @@
 import { useContext } from 'react';
 import { AuthContext } from './AuthContext.js';
 
-
-// AuthProvider 하위 컴포넌트들이 useAuth를 통해 AuthContext의 값을 가져올 수 있음
 export function useAuth() {
   const context = useContext(AuthContext);
 

@@ -1,12 +1,6 @@
 import { useState } from 'react';
 import './CommentForm.css';
 
-// 원본: post_detail.html:117-126, post_detail.js:77-86,267-278,345-389
-// 등록/수정 겸용 입력창 — draft(입력 중인 텍스트)는 이 컴포넌트가 소유.
-
-// editingComment가 바뀌면(수정 버튼 클릭) 기존 댓글 내용을 프리필.
-
-// useEffect 대신 "이전 렌더와 비교해 달라졌을 때만 반영" 패턴 사용(SignupForm.jsx와 동일 패턴,React 공식 문서의 setState-during-render).
 function CommentForm({ editingComment, onSubmit, onCancelEdit }) {
   const [draft, setDraft] = useState('');
   const isEditing = Boolean(editingComment);
