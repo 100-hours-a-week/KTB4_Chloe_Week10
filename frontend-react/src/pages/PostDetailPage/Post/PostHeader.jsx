@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { getPostImageUrl, getProfileImageUrl } from '../../../api/imageRequest';
 import { formatDateTime } from '../../../utils/format';
 import './PostHeader.css';
@@ -5,6 +6,7 @@ import './PostHeader.css';
 // 원본: post_detail.html:85-102 / post_detail.js:133-150
 // 원본은 postBody.textContent를 <div class="post-body">에 직접 대입하는데, CSS는 .post-body p를
 // 스타일링하고 있어 실제로는 적용된 적 없는 죽은 규칙이었음 — <p>로 감싸서 의도대로 스타일 적용되게 함
+// React.memo: post가 바뀔 때만 리렌더링(좋아요/댓글 변경과 무관해짐 — design doc 참고).
 function PostHeader({ post }) {
   return (
     <>
@@ -33,4 +35,4 @@ function PostHeader({ post }) {
   );
 }
 
-export default PostHeader;
+export default memo(PostHeader);

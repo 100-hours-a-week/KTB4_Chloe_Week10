@@ -34,9 +34,11 @@ function SignupForm({ onSubmit, serverErrors }) {
   });
   const [profileFile, setProfileFile] = useState(null);
 
-  // serverErrors(409 응답)를 렌더 중에 errors로 반영 — useEffect 대신 "이전 렌더와 비교해
-  // 달라졌을 때만 반영" 패턴 사용(React 공식 문서의 setState-during-render 패턴)
+  // serverErrors(409 응답)를 렌더 중에 errors로 반영 
+  // useEffect 대신 "이전 렌더와 비교해 달라졌을 때만 반영" 패턴 사용(React 공식 문서의 setState-during-render 패턴)
+  // serverErrors가 바뀐 것이 감지되면 즉시 setPrevServerErrors 호출하고 다시 그 부분 렌더 -> 깜빡임이 없이 최신 상태로 반영
   const [prevServerErrors, setPrevServerErrors] = useState(serverErrors);
+
   if (serverErrors && serverErrors !== prevServerErrors) {
     setPrevServerErrors(serverErrors);
     setErrors((prev) => ({ ...prev, ...serverErrors }));

@@ -1,9 +1,12 @@
+import { memo } from 'react';
 import { LikeIcon } from '../../../components/icons/StatIcons';
 import { formatCount } from '../../../utils/format';
 import './LikeButton.css';
 
 // 원본: post_detail.html:106-109. 완전 제어 컴포넌트 — liked/likeCount/onToggle 모두 상위(PostDetailPage,
 // usePostDetail)가 소유. 클릭 시 API 호출/분기는 여기서 하지 않고 onToggle(=usePostDetail의 toggleLike)에 위임.
+// React.memo: liked/likeCount가 바뀔 때만 리렌더링. onToggle(toggleLike)은 훅에서 useCallback으로
+// 안정화돼 있어야 이 memo가 실제로 효과가 있음.
 function LikeButton({ liked, likeCount, onToggle }) {
   return (
     <button type="button" className={`btn-like-heart${liked ? ' liked' : ''}`} onClick={onToggle}>
@@ -13,4 +16,4 @@ function LikeButton({ liked, likeCount, onToggle }) {
   );
 }
 
-export default LikeButton;
+export default memo(LikeButton);
