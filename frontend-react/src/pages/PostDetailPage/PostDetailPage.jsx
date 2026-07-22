@@ -87,19 +87,32 @@ function PostDetailPage() {
     [setDeleteTargetCommentId]
   );
 
+  // 버그 수정: 지금 CommentForm에서 수정 중인 댓글을 삭제하면 editingComment가 삭제된 댓글 객체를
+  // 계속 참조하고 있어서, 입력창 프리필/버튼 라벨("댓글 수정")이 그대로 남아있던 문제.
+  const isDeletingEditingComment =
+    editingComment !== null && editingComment.commentId === deleteTargetCommentId;
+  const commentDeleteModalDescription = isDeletingEditingComment
+    ? '현재 수정 중인 댓글입니다.'
+    : '삭제한 내용은 복구할 수 없습니다.';
+
   // 원본 commentDeleteConfirmBtn 핸들러(post_detail.js:326-341)
   // ConfirmModal(댓글 삭제용, React.memo)에 onConfirm으로 내려가므로 참조 안정화.
   // deleteComment는 훅 내부에서 deleteTargetCommentId에 의존하므로, 그 값이 바뀔 때만 이 콜백도 바뀜
   // (어차피 그 시점엔 open 여부도 함께 바뀌어 모달이 다시 렌더링되므로 문제 없음).
+  // 삭제 성공 시, 지금 수정 중이던 댓글을 지운 거라면 editingComment도 null로 되돌려서
+  // CommentForm이 등록 모드로 리셋되게 함(프리필 텍스트/버튼 라벨 원상복구).
   const handleConfirmDeleteComment = useCallback(async () => {
     try {
       await deleteComment();
+      if (isDeletingEditingComment) {
+        setEditingComment(null);
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setDeleteTargetCommentId(null);
     }
-  }, [deleteComment, setDeleteTargetCommentId]);
+  }, [deleteComment, isDeletingEditingComment, setEditingComment, setDeleteTargetCommentId]);
 
   // ConfirmModal(댓글 삭제용)도 인스턴스 1개+가벼운 렌더라 일반 함수로 둠(위 onCancelDelete와 동일 이유).
   const onCancelDeleteComment = () => setDeleteTargetCommentId(null);
@@ -135,6 +148,7 @@ function PostDetailPage() {
       onEditComment={handleEditComment}
       onRequestDeleteComment={handleRequestDeleteComment}
       commentDeleteModalOpen={deleteTargetCommentId !== null}
+      commentDeleteModalDescription={commentDeleteModalDescription}
       onConfirmDeleteComment={handleConfirmDeleteComment}
       onCancelDeleteComment={onCancelDeleteComment}
     />

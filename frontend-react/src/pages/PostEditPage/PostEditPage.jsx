@@ -59,8 +59,12 @@ function PostEditPage() {
     formData.append('title', values.title);
     formData.append('content', values.content);
     // 원본: postImageInput.files.length > 0일 때만 append — 새 파일 안 고르면 기존 이미지 유지
+    // removeImage는 "삭제" 버튼을 눌렀을 때만 true — 새 파일도 없고 삭제도 안 눌렀으면 아무것도 안 보내서
+    // 서버가 기존 이미지를 그대로 유지하게 함(버그 수정: 기존엔 이미지를 아예 빼는 경우가 없었음)
     if (values.image) {
       formData.append('postImage', values.image);
+    } else if (values.removeImage) {
+      formData.append('removeImage', 'true');
     }
 
     try {

@@ -26,6 +26,7 @@ function PostDetailMain({
   onEditComment,
   onRequestDeleteComment,
   commentDeleteModalOpen,
+  commentDeleteModalDescription,
   onConfirmDeleteComment,
   onCancelDeleteComment,
 }) {
@@ -68,7 +69,7 @@ function PostDetailMain({
       <ConfirmModal
         open={commentDeleteModalOpen}
         title="댓글을 삭제하시겠습니까?"
-        description="삭제한 내용은 복구할 수 없습니다."
+        description={commentDeleteModalDescription}
         onConfirm={onConfirmDeleteComment}
         onCancel={onCancelDeleteComment}
       />

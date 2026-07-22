@@ -17,6 +17,7 @@ function PostForm({ mode, initialValues, onSubmit, submitting = false }) {
     title: initialValues?.title ?? '',
     content: initialValues?.content ?? '',
     image: null, // 새로 선택한 File. edit 모드에서 안 바꾸면 null 유지 → 기존 이미지는 initialValues.postImage로만 표시
+    removeImage: false, // "기존 이미지를 아예 빼겠다"는 명시적 의도(삭제 버튼으로만 true가 됨)
   });
 
   const { heading, submitLabel } = MODE_TEXT[mode];
@@ -60,8 +61,10 @@ function PostForm({ mode, initialValues, onSubmit, submitting = false }) {
         <ImageUploader
           file={values.image}
           existingFileName={initialValues?.postImage}
-          //image에 file이 들어오면 상태 변경하고 아니면 그냥 null로 
-          onFileChange={(file) => setValues((prev) => ({ ...prev, image: file }))}
+          removed={values.removeImage}
+          //image에 file이 들어오면 상태 변경하고 아니면 그냥 null로 — 새 파일을 고르면 삭제 의도는 취소
+          onFileChange={(file) => setValues((prev) => ({ ...prev, image: file, removeImage: false }))}
+          onRemove={() => setValues((prev) => ({ ...prev, image: null, removeImage: true }))}
         />
 
         <button
