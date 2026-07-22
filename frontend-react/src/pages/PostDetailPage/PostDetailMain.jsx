@@ -1,7 +1,7 @@
-import PostTopBar from './PostTopBar';
-import PostHeader from './PostHeader';
-import PostEngagementRow from './PostEngagementRow';
-import CommentSection from './CommentSection';
+import PostTopBar from './Post/PostTopBar';
+import PostHeader from './Post/PostHeader';
+import PostEngagementRow from './Post/PostEngagementRow';
+import CommentSection from './Comment/CommentSection';
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal';
 import './PostDetailMain.css';
 

@@ -1,5 +1,5 @@
-import { getPostImageUrl, getProfileImageUrl } from '../../api/imageRequest';
-import { formatDateTime } from '../../utils/format';
+import { getPostImageUrl, getProfileImageUrl } from '../../../api/imageRequest';
+import { formatDateTime } from '../../../utils/format';
 import './PostHeader.css';
 
 // 원본: post_detail.html:85-102 / post_detail.js:133-150

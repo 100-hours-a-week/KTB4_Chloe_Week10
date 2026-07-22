@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { ViewIcon } from '../../components/icons/StatIcons';
-import { formatCount } from '../../utils/format';
+import { ViewIcon } from '../../../components/icons/StatIcons';
+import { formatCount } from '../../../utils/format';
 import './PostTopBar.css';
 
 // 원본: post_detail.html:70-83. 목록으로 가기는 하드 링크 → SPA 라우트(/board)로 변환.

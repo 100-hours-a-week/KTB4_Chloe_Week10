@@ -1,5 +1,5 @@
-import { LikeIcon } from '../../components/icons/StatIcons';
-import { formatCount } from '../../utils/format';
+import { LikeIcon } from '../../../components/icons/StatIcons';
+import { formatCount } from '../../../utils/format';
 import './LikeButton.css';
 
 // 원본: post_detail.html:106-109. 완전 제어 컴포넌트 — liked/likeCount/onToggle 모두 상위(PostDetailPage,

@@ -1,5 +1,5 @@
-import { getProfileImageUrl } from '../../api/imageRequest';
-import { formatDateTime } from '../../utils/format';
+import { getProfileImageUrl } from '../../../api/imageRequest';
+import { formatDateTime } from '../../../utils/format';
 import './CommentItem.css';
 
 // 원본: post_detail.js:208-241 createCommentVNode. data-comment-id 대신 comment를 클로저로
