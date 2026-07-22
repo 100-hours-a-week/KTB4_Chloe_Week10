@@ -391,22 +391,14 @@ PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 
   - `Sidebar` 내부의 `Header` — 펼침 상태, `variant="sidebar"` (드롭다운 위로 열림)
   - `collapsed-topbar` 안의 `Header` — 접힘 상태, `variant="topbar"` (드롭다운 아래로 열림)
 
-### ④ Login/Signup 성공 후 이동 방식 — 응답의 `link`로 하드 리다이렉트(HATEOAS) → 고정 라우트로 이동
-
-| 구분 | 내용 |
-|---|---|
-| 원본 동작 | 로그인/회원가입 성공 시 서버 응답의 `response.data.link`(정적 HTML 경로)로 `window.location.href` 하드 리다이렉트 |
-| 문제 | React Router의 `navigate()`는 서버가 내려주는 HTML 파일 경로를 그대로 라우트로 쓸 수 없음 |
-| 변경 | `link`을 파싱하지 않고, 로그인 성공 시 `/board`로, 회원가입 성공 시 `/login`으로 고정 라우트 이동(`LoginPage`/`SignupPage`) |
-
-### ⑤ `SubmitButton` — 별도 컴포넌트로 분리하지 않음
+### ④ `SubmitButton` — 별도 컴포넌트로 분리하지 않음
 
 | 구분 | 내용 |
 |---|---|
 | 설계 | 1-1/1-2절 컴포넌트 트리에는 `SubmitButton`이 `LoginForm`/`SignupForm`의 자식 컴포넌트로 명시됨 |
 | 변경 | 상태·분기 로직이 없는 단순 `<button>`이라 별도 컴포넌트로 분리하지 않고 `LoginForm`/`SignupForm` 내부에 인라인으로 구현 |
 
-### ⑥ `SignupPage` 자체 상태 — "없음" → `serverErrors` 보유
+### ⑤ `SignupPage` 자체 상태 — "없음" → `serverErrors` 보유
 
 | 구분 | 내용 |
 |---|---|
@@ -414,14 +406,14 @@ PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 
 | 문제 | 같은 표에서 `SignupPage`의 역할로 "409 에러 필드 매핑"을 명시하는데, 그 결과를 하위 `SignupForm`에 prop으로 내려주려면 어딘가 값을 들고 있어야 함 |
 | 변경 | `SignupPage`가 `serverErrors` state를 보유해 `SignupForm`에 prop으로 전달. `LoginPage`는 로그인 실패 시 필드별 에러 매핑이 없어(원본도 `console.error`만 함) 동일한 상태가 필요 없음 — 이 비대칭은 의도된 것 |
 
-### ⑦ `ReadonlyField` — 설계 트리에는 있었으나 공용 컴포넌트 표에는 누락
+### ⑥ `ReadonlyField` — 설계 트리에는 있었으나 공용 컴포넌트 표에는 누락
 
 | 구분 | 내용 |
 |---|---|
 | 설계 | 1-6절 트리는 `ReadonlyField (email)`을 명시했지만, 2절 "공용 컴포넌트" 표(154-165행)에는 역할/props가 정의돼 있지 않았음 |
 | 변경 | `components/ReadonlyField/`로 신규 생성 — `ValidatedField`와 같은 `.form-group`/`.form-label` 레이아웃을 쓰되 `id`/`label`/`value`만 받는 완전 무상태 컴포넌트 |
 
-### ⑧ `ProfileEditForm` props — `onRequestWithdraw` 추가
+### ⑦ `ProfileEditForm` props — `onRequestWithdraw` 추가
 
 | 구분 | 내용 |
 |---|---|
@@ -429,9 +421,9 @@ PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 
 | 문제 | 원본 마크업(`profile_edit.html`)에서 "회원 탈퇴" 버튼이 수정 폼과 같은 `.form-card` 안에 있어, 그 버튼을 폼 바깥(`ProfileEditPage`)으로 완전히 분리하면 레이아웃이 원본과 달라짐 |
 | 변경 | `onRequestWithdraw` 콜백 prop을 추가해 버튼은 폼 안에 그대로 두고, 클릭 시 `ProfileEditPage`가 소유한 탈퇴 모달 `open` 상태만 토글하도록 위임 |
 
-### ⑨ `PasswordEditForm`도 `SubmitButton` 인라인 처리 (⑤ 확장)
+### ⑧ `PasswordEditForm`도 `SubmitButton` 인라인 처리 (④ 확장)
 
 | 구분 | 내용 |
 |---|---|
 | 설계 | 1-7절 트리는 `SubmitButton`을 `PasswordEditForm`의 자식으로 명시 |
-| 변경 | ⑤와 동일한 이유로 별도 컴포넌트로 분리하지 않고 인라인 `<button>`으로 구현 |
+| 변경 | ④와 동일한 이유로 별도 컴포넌트로 분리하지 않고 인라인 `<button>`으로 구현 |
