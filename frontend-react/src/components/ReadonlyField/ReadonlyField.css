@@ -1,0 +1,6 @@
+/* frontend/Page/Profile_edit/profile_edit.css:203-207 .email-text */
+.readonly-text {
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--text-sub);
+}

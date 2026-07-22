@@ -63,7 +63,7 @@ function PostDetailPage() {
   }, [reportPost, navigate]);
 
   // 원본 commentSubmitBtn 핸들러(post_detail.js:345-389) — editingComment 유무로 수정/등록 분기
-  // CommentForm은 memo 대상이 아니라서 useCallback 없이도 무방 — 그대로 둠(불필요한 안정화 방지).
+  // CommentSection은 memo 대상이 아니라서(방금 결정) 안정화해도 리렌더링 스킵 효과가 없음 — 일반 함수로 둠.
   async function handleSubmitComment(content) {
     if (editingComment) {
       await editComment(content);
@@ -117,7 +117,7 @@ function PostDetailPage() {
   // ConfirmModal(댓글 삭제용)도 인스턴스 1개+가벼운 렌더라 일반 함수로 둠(위 onCancelDelete와 동일 이유).
   const onCancelDeleteComment = () => setDeleteTargetCommentId(null);
 
-  // CommentForm은 memo 대상이 아니라서 안정화 불필요 — 그대로 둠.
+  // CommentSection은 memo 대상이 아니라서 안정화 불필요 — 일반 함수로 둠.
   const onCancelEditComment = () => setEditingComment(null);
 
   if (error) {

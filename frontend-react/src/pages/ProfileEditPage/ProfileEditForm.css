@@ -1,0 +1,70 @@
+/* frontend/Page/Profile_edit/profile_edit.css의 .edit-section/.edit-title/.form-card/.btn-submit/.btn-withdraw 포팅 */
+.edit-section {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(45, 42, 38, 0.08);
+  padding: 40px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.edit-title {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 130%;
+  text-align: center;
+  color: var(--text);
+}
+
+.form-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 13px;
+  background-color: #F5B8AE;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: not-allowed;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-submit.active {
+  background-color: var(--primary);
+  cursor: pointer;
+}
+
+.btn-submit.active:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-submit.active:active {
+  transform: scale(0.98);
+}
+
+.btn-withdraw {
+  width: 100%;
+  padding: 8px;
+  background-color: transparent;
+  color: var(--text-sub);
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-withdraw:hover {
+  color: var(--text);
+  text-decoration: underline;
+}

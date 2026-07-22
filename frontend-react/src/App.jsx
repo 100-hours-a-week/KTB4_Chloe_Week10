@@ -6,6 +6,7 @@ import BoardPage from './pages/BoardPage/BoardPage';
 import PostWritePage from './pages/PostWritePage/PostWritePage';
 import PostEditPage from './pages/PostEditPage/PostEditPage';
 import PostDetailPage from './pages/PostDetailPage/PostDetailPage';
+import ProfileEditPage from './pages/ProfileEditPage/ProfileEditPage';
 
 // TODO: 5단계에서 실제 페이지 컴포넌트로 교체(댓글 관련은 4단계 후속).
 // 지금은 AppLayout의 <Outlet /> 동작(페이지 전환 시 Sidebar 접힘 상태 유지)을
@@ -27,7 +28,7 @@ function App() {
           <Route path="/posts/write" element={<PostWritePage />} />
           <Route path="/posts/:postId/edit" element={<PostEditPage />} />
           <Route path="/posts/:postId" element={<PostDetailPage />} />
-          <Route path="/profile-edit" element={<PlaceholderPage label="Profile Edit" />} />
+          <Route path="/profile-edit" element={<ProfileEditPage />} />
           <Route path="/password-edit" element={<PlaceholderPage label="Password Edit" />} />
         </Route>
       </Routes>
