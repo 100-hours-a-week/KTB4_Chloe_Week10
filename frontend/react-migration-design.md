@@ -274,22 +274,37 @@ PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 
 
 ### Post Detail — 리렌더링 최적화 (`React.memo`)
 
-`usePostDetail`의 모든 state가 하나의 컴포넌트(`PostDetailPage`)에 귀속되어 있으므로(3절), `isLiked`/`comments`/`editingComment` 중 무엇 하나만 바뀌어도 `PostDetailPage` 전체가 리렌더링됩니다. React는 기본적으로 부모가 리렌더링되면 자식도 props 비교 없이 함께 리렌더링하므로(자식이 `React.memo`로 감싸져 있지 않은 이상), 예를 들어 `LikeButton` 클릭 한 번으로 `isLiked`/`likeCount`만 바뀌어도 `PostHeader`, `CommentList`와 그 안의 `CommentItem × N`까지 전부 불필요하게 다시 렌더링됩니다.
+`usePostDetail`의 모든 state가 `PostDetailPage` 하나에 귀속돼 있어(3절), `isLiked`/`comments`/`editingComment`
+중 하나만 바뀌어도 `PostDetailPage` 전체가 리렌더링된다. `React.memo`로 감싸지 않은 자식은 부모가
+리렌더링되면 props 비교 없이 무조건 같이 리렌더링되므로, 표시 전용 하위 컴포넌트만 선별해서 감싼다.
 
-이를 막기 위해 표시 전용 하위 컴포넌트들을 `React.memo`로 감쌉니다.
+**적용 대상**
 
-| 컴포넌트 | `React.memo` 적용 | 효과 |
+| 컴포넌트 | `React.memo` | 스킵 조건(불변이어야 하는 props) |
 |---|---|---|
-| `PostHeader` | O | `post`가 바뀔 때만 리렌더링(좋아요/댓글 변경과 무관해짐) |
-| `PostTopBar` | O | `viewCount`/`isOwner`가 바뀔 때만 |
-| `LikeButton` | O | `liked`/`likeCount`가 바뀔 때만 |
-| `CommentList` | O | `comments` 배열 참조가 바뀔 때만 |
-| `CommentItem` | O | 자신의 `comment`나 "지금 자신이 수정 대상인지 여부"가 바뀔 때만 — 댓글 N개 중 실제로 영향받는 항목만 리렌더링 |
-| `ConfirmModal` (×2) | O | `open` 여부가 바뀔 때만 |
+| `PostHeader` | O | `post` |
+| `PostTopBar` | O | `viewCount`, `isOwner`, `onEdit`, `onRequestDelete` |
+| `LikeButton` | O | `liked`, `likeCount`, `onToggle` |
+| `CommentList` | O | `comments`, `onEdit`, `onRequestDelete` |
+| `CommentItem` | O | `comment`, `onEdit`, `onRequestDelete` — 댓글 N개 중 실제로 바뀐 항목만 리렌더링 |
+| `ConfirmModal` (×2) | O | `open`, `onConfirm`, `onCancel` |
+| `CommentSection` / `CommentForm` / `PostEngagementRow` / `ReportButton` | X | 아래 "`useCallback` 적용 기준" 참고 — 감쌀 실익이 없다고 판단 |
 
-**전제 조건**: `React.memo`는 props를 얕은 비교(shallow compare)합니다. `PostDetailPage`가 매 렌더링마다 `onEdit`, `onRequestDelete`, `onToggle` 같은 콜백을 새 함수로 만들어 내려주면 참조가 매번 달라져서 `React.memo`가 무력화됩니다. 따라서 `usePostDetail`이 반환하는 이 콜백들은 `useCallback`으로 감싸 참조를 안정화해야 `React.memo`가 실제로 리렌더링을 건너뛸 수 있습니다.
+**전제 조건**: `React.memo`는 props를 얕은 비교(shallow compare)한다. 부모가 콜백을 매 렌더링마다 새
+함수로 내려주면 참조가 매번 달라져 위 memo가 무력화되므로 `useCallback`이 필요하다. 다만 **모든 콜백에
+무조건 적용하지 않고, "이 콜백이 memo 대상 컴포넌트에 직접(또는 그 컴포넌트가 의존하는 값을 거쳐) 내려가는가"를
+기준으로만 선별 적용**한다 — memo 안 된 컴포넌트에만 내려가는 콜백까지 감싸는 건 리렌더링 스킵 효과 없이
+`useCallback` 자체 비용(의존성 비교)만 추가하는 과도한 최적화이기 때문이다
 
-같은 이유로 **함수가 아닌 객체/배열 형태의 파생 prop**도 조심해야 합니다. 예를 들어 `CommentItem`에 "지금 이 댓글이 수정 대상인지" 같은 값을 `{ isEditingThis, isDeleteTarget }`처럼 매 렌더링마다 새로 묶은 객체로 내려주면, 값 자체는 안 바뀌어도 객체 참조가 매번 달라져서 역시 `React.memo`가 무력화됩니다. 이런 파생값은 `useMemo`로 감싸 참조를 고정하거나(의존성: `comment.commentId`, `editingComment`, `deleteTargetCommentId`), 더 간단하게는 객체로 묶지 말고 `isEditingThis`처럼 boolean/문자열 등 **원시값(primitive)을 각각 별도 prop으로** 내려주는 편을 권장합니다 — 원시값은 값이 같으면 얕은 비교를 그대로 통과하므로 `useMemo` 없이도 안전합니다. 참고로 `post`, `comments`, `editingComment` 자체는 가공 없이 원본 state를 그대로 내려주는 것이라(3절) 이미 참조가 안정적이며, `useMemo`가 필요한 대상은 위처럼 여러 값을 새로 묶거나 매 렌더링마다 재계산하는 파생 객체/배열에 한정됩니다.
+**`useCallback` 적용 기준**
+
+| 콜백 | 위치 | 적용 | 이유 |
+|---|---|---|---|
+| `toggleLike`, `deletePost`, `reportPost`, `createComment`, `editComment`, `deleteComment` | `usePostDetail` | O | `LikeButton`/`ConfirmModal` 등 memo 대상에 내려가거나, `PostDetailPage`의 memo용 콜백이 의존하는 값이라 안정화 필요 |
+| `handleEditComment`, `handleRequestDeleteComment` | `PostDetailPage` | O | `CommentList` → `CommentItem × N`(memo)에 내려감 — 댓글 수가 늘수록 이득이 커짐 |
+| `handleConfirmDelete`, `handleConfirmDeleteComment` | `PostDetailPage` | O | `ConfirmModal`(memo)의 `onConfirm` |
+| `onEdit`, `onRequestDelete`, `onCancelDelete`, `onCancelDeleteComment` | `PostDetailPage` | X | `PostTopBar`/`ConfirmModal`(memo)에 내려가지만, 인스턴스가 단일 개체고 렌더 비용도 작아 `useCallback` 비용이 리렌더링 스킵 이득보다 크다고 판단 |
+| `handleSubmitComment`, `onCancelEditComment` | `PostDetailPage` | X | 수신 측인 `CommentSection`/`CommentForm`이 애초에 memo 대상이 아님 — 안정화해도 리렌더링을 못 막음 |
 
 ### Post Write / Post Edit
 - `PostWritePage`/`PostEditPage`가 각각 `writePost`/`editPost`(+ 수정은 진입 시 `defaultEditPage`) API를 소유.
@@ -398,3 +413,25 @@ PasswordEditPage                       (AppLayout의 <Outlet />에 렌더링됨 
 | 설계 | 2절 Login/Signup 표(208행)는 `SignupPage` 자체 상태를 "없음"으로 명시 |
 | 문제 | 같은 표에서 `SignupPage`의 역할로 "409 에러 필드 매핑"을 명시하는데, 그 결과를 하위 `SignupForm`에 prop으로 내려주려면 어딘가 값을 들고 있어야 함 |
 | 변경 | `SignupPage`가 `serverErrors` state를 보유해 `SignupForm`에 prop으로 전달. `LoginPage`는 로그인 실패 시 필드별 에러 매핑이 없어(원본도 `console.error`만 함) 동일한 상태가 필요 없음 — 이 비대칭은 의도된 것 |
+
+### ⑦ `ReadonlyField` — 설계 트리에는 있었으나 공용 컴포넌트 표에는 누락
+
+| 구분 | 내용 |
+|---|---|
+| 설계 | 1-6절 트리는 `ReadonlyField (email)`을 명시했지만, 2절 "공용 컴포넌트" 표(154-165행)에는 역할/props가 정의돼 있지 않았음 |
+| 변경 | `components/ReadonlyField/`로 신규 생성 — `ValidatedField`와 같은 `.form-group`/`.form-label` 레이아웃을 쓰되 `id`/`label`/`value`만 받는 완전 무상태 컴포넌트 |
+
+### ⑧ `ProfileEditForm` props — `onRequestWithdraw` 추가
+
+| 구분 | 내용 |
+|---|---|
+| 설계 | 2절 표(204행)는 `ProfileEditForm` props를 `initialValues`, `onSubmit`만 명시 |
+| 문제 | 원본 마크업(`profile_edit.html`)에서 "회원 탈퇴" 버튼이 수정 폼과 같은 `.form-card` 안에 있어, 그 버튼을 폼 바깥(`ProfileEditPage`)으로 완전히 분리하면 레이아웃이 원본과 달라짐 |
+| 변경 | `onRequestWithdraw` 콜백 prop을 추가해 버튼은 폼 안에 그대로 두고, 클릭 시 `ProfileEditPage`가 소유한 탈퇴 모달 `open` 상태만 토글하도록 위임 |
+
+### ⑨ `PasswordEditForm`도 `SubmitButton` 인라인 처리 (⑤ 확장)
+
+| 구분 | 내용 |
+|---|---|
+| 설계 | 1-7절 트리는 `SubmitButton`을 `PasswordEditForm`의 자식으로 명시 |
+| 변경 | ⑤와 동일한 이유로 별도 컴포넌트로 분리하지 않고 인라인 `<button>`으로 구현 |
