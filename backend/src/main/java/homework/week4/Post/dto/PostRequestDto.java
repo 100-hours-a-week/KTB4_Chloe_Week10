@@ -23,5 +23,7 @@ public class PostRequestDto {
 
     private MultipartFile postImage;
 
+    // 새 파일 없이 이 값이 true면 기존 이미지를 제거(null 저장). 프론트가 명시적으로 보낼 때만 true.
+    private boolean removeImage;
 
 }

@@ -184,6 +184,8 @@ public class PostService {
         String postImagePath;
         if (request.getPostImage() != null && !request.getPostImage().isEmpty()) {
             postImagePath = fileStorageService.storePostImage(request.getPostImage());
+        } else if (request.isRemoveImage()) {
+            postImagePath = null; // 프론트에서 명시적으로 이미지 삭제를 요청한 경우
         } else {
             postImagePath = post.getPostImage(); // 기존 값 그대로 유지
         }
