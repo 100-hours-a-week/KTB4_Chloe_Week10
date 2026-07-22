@@ -1,6 +1,5 @@
 package homework.week4.User.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +20,7 @@ public class UserChangeRequestDto {
             message = "닉네임은 최대 10자입니다.")
     private String nickname;
 
-    @NotNull(message = "프로필 이미지는 필수값입니다.")
+    // 수정 화면은 이미 기존 사진이 있으므로 필수 아님 — 없으면 UserService.changeUser가 기존 이미지를 그대로 유지
     private MultipartFile profileImage;
 
 }
