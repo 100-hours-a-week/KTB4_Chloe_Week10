@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout/AppLayout';
 import LoginPage from './pages/LoginPage/LoginPage';
 import SignupPage from './pages/SignupPage/SignupPage';
@@ -9,9 +10,25 @@ import PostDetailPage from './pages/PostDetailPage/PostDetailPage';
 import ProfileEditPage from './pages/ProfileEditPage/ProfileEditPage';
 import PasswordEditPage from './pages/PasswordEditPage/PasswordEditPage';
 
+function UnauthorizedRedirect() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    function handleUnauthorized() {
+      navigate('/login');
+    }
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
+  }, [navigate]);
+
+  return null;
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <UnauthorizedRedirect />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />

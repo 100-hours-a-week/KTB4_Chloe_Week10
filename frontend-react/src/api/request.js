@@ -40,7 +40,7 @@ async function handleResponse(response) {
 
   switch (status) {
     case 401:
-      alert(message ?? '로그인이 필요합니다.');
+      window.dispatchEvent(new Event('auth:unauthorized'));
       break;
     case 403:
       console.error('인가 실패:', message);
